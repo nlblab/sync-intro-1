@@ -1,5 +1,7 @@
 #!vanilla
 
+# Temp fix - to be done in puzlet.js.
+Number.prototype.pow = (p) -> Math.pow this, p
 
 WebFontConfig = google:
   families: ["Reenie+Beanie::latin"]
@@ -43,10 +45,11 @@ class d3Object
 # Vector field (<a href="http://en.wikipedia.org/wiki/Van_der_Pol_oscillator">Van der Pol</a>)
 
 # VdP equation
-f = (t, v) -> [
+f = (t, v) -> 
+	[
     v[0]-v[0].pow(3)/3+v[1] # $\dot{x} = x - x^3/3 + y$
     -v[0] # $\dot{y} = -x$
-]
+	]
 
 class Vector
 
