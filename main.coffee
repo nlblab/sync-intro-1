@@ -29,19 +29,6 @@ char "percent", "#37"
 char "equals", "#61"
 
 
-class d3Object
-
-    constructor: (id) ->
-        @element = d3.select "##{id}"
-        @element.selectAll("svg").remove()
-        @obj = @element.append "svg"
-        @initAxes()
-        
-    append: (obj) -> @obj.append obj
-    
-    initAxes: ->
-
-
 # Vector field (<a href="http://en.wikipedia.org/wiki/Van_der_Pol_oscillator">Van der Pol</a>)
 
 # VdP equation
@@ -86,14 +73,13 @@ class Canvas
         @ctx.fillStyle = color
         @ctx.fillRect(pos.x, pos.y, size, size)
 
-class Particle
 
-    width  = Canvas.width
-    height = Canvas.height
- 
-    constructor: (@pos) ->
-        @size = 2
-        @color = ["red", "green", "blue"][Math.floor(3*Math.random())]
+class vfPoint # vector field point
+
+    width  = 320
+    height = 320
+    
+    constructor: (@pos={x:0, y:0}) ->
 
         @vel = new Vector 0, 0 # velocity
         @vf = new Vector 0, 0 # VF coords
@@ -103,16 +89,30 @@ class Particle
         @update() # VF coords and velocity
         @draw()
 
-    visible: -> # conditions for showing particles
-        (0 <= @pos.x <= width) and 
-            (0 <= @pos.y <= height) and
-            @vel.mag() > 0 and
-            @d < 1200
+    scales: ->
+        
+        @x = d3.scale.linear()
+            .domain([-xMax, xMax])
+            .range([0, width])
+        @y = d3.scale.linear()
+            .domain([-yMax, yMax])
+            .range([height, 0])
+
+    update: ->
+
+        # VF coords
+        @vf.x = @x.invert @pos.x
+        @vf.y = @y.invert @pos.y
+        
+        # Velocity (screen units)
+        vel = f(0, [@vf.x, @vf.y])
+        @vel.x = @x.invert vel[0]
+        @vel.y = @y.invert vel[1]
 
     draw: ->
-        Canvas.square @pos, @size, @color
 
     move: ->
+
         @update()
         
         # Runge Kutta step
@@ -124,24 +124,27 @@ class Particle
         
         # accumulate distance (screen units)
         @d += @vel.mag()
-        
-    update: ->
-        # VF coords
-        @vf.x = @x.invert @pos.x
-        @vf.y = @y.invert @pos.y
-        
-        # Velocity (screen units)
-        vel = f(0, [@vf.x, @vf.y])
-        @vel.x = @x.invert vel[0]
-        @vel.y = @y.invert vel[1]
 
-    scales: ->
-        @x = d3.scale.linear()
-            .domain([-xMax, xMax])
-            .range([0, width])
-        @y = d3.scale.linear()
-            .domain([-yMax, yMax])
-            .range([height, 0])
+
+    visible: -> # conditions for showing particles
+        (0 <= @pos.x <= width) and 
+            (0 <= @pos.y <= height) and
+            @vel.mag() > 0 and
+            @d < 1200
+
+
+class Particle extends vfPoint
+
+    constructor: (Z) ->
+        super Z
+
+        @size = 2
+        @color = ["red", "green", "blue"][Math.floor(3*Math.random())]
+
+    draw: ->
+        Canvas.square @pos, @size, @color
+
+    
             
 class Emitter
 
@@ -214,10 +217,10 @@ class d3Object
     initAxes: -> 
         
 class Chart extends d3Object
-
+        
     margin = {top: 65, right: 65, bottom: 65, left: 65}
-    width = 450 - margin.left - margin.right
-    height = 450 - margin.top - margin.bottom
+    width = Canvas.width # 450 - margin.left - margin.right
+    height = Canvas.height # 450 - margin.top - margin.bottom
 
     constructor: () ->
         super "chart"
@@ -237,6 +240,20 @@ class Chart extends d3Object
             .attr("class", "axis")
             .attr("transform","translate(#{margin.left-10}, #{margin.top})")
             .call(@yAxis) 
+
+        marker0 = @obj.append("circle")
+            .attr('transform', "translate(100,100)")
+            .attr("r",10)
+            .style("fill","black")
+            .style("stroke","000")
+            .style("stroke-width","1")
+
+        marker0 = @obj.append("circle")
+            .attr('transform', "translate(120,120)")
+            .attr("r",15)
+            .style("fill","black")
+            .style("stroke","000")
+            .style("stroke-width","1")
 
     initAxes: ->
 
