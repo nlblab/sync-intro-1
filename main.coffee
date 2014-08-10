@@ -117,7 +117,6 @@ class vfPoint # vector field point
         
         # Runge Kutta step
         w = ode(rk[1], f, [0, 0.02], [@vf.x, @vf.y])[1]
-        
         # map VF coords to screen coords
         @pos.x = @x w[0]
         @pos.y = @y w[1]
@@ -125,13 +124,12 @@ class vfPoint # vector field point
         # accumulate distance (screen units)
         @d += @vel.mag()
 
-
     visible: -> # conditions for showing particles
         (0 <= @pos.x <= width) and 
             (0 <= @pos.y <= height) and
             @vel.mag() > 0 and
             @d < 1200
-
+    
 
 class Particle extends vfPoint
 
@@ -144,7 +142,6 @@ class Particle extends vfPoint
     draw: ->
         Canvas.square @pos, @size, @color
 
-    
             
 class Emitter
 
@@ -241,20 +238,16 @@ class Chart extends d3Object
             .attr("transform","translate(#{margin.left-10}, #{margin.top})")
             .call(@yAxis) 
 
-        marker0 = @obj.append("circle")
-            .attr('transform', "translate(100,100)")
+        @marker0 = @obj.append("circle")
+            #.attr('transform', "translate(100,100)")
             .attr("r",10)
             .style("fill","black")
             .style("stroke","000")
             .style("stroke-width","1")
 
-        marker0 = @obj.append("circle")
-            .attr('transform', "translate(120,120)")
-            .attr("r",15)
-            .style("fill","black")
-            .style("stroke","000")
-            .style("stroke-width","1")
-
+    moveMarker: (marker, u, v) ->
+            marker.attr('transform', "translate(#{u+margin.left},#{v+margin.top})")
+        
     initAxes: ->
 
         @xscale = d3.scale.linear()
@@ -281,10 +274,13 @@ class Simulation
         setTimeout (=> @animate() ), 2000
         @stopButton = new StopButton => @stop()
         @persist = new Checkbox "persist" , (v) =>  @.checked = v
+        @vfp1 = new vfPoint (new Vector)
         
     snapshot: ->
         Canvas.clear() if not @.checked
         @emitter.directParticles()
+        @vfp1.move()
+        chart.moveMarker(chart.marker0, @vfp1.pos.x, @vfp1.pos.y)
         
     animate: ->
         @timer = setInterval (=> @snapshot()), 50
@@ -295,7 +291,8 @@ class Simulation
         @stopButton?.remove()
         $("#run_button").prop("disabled", false)
         
-new Chart
+chart = new Chart
+
 new Simulation
 
 #!end (coffee)
