@@ -99,7 +99,6 @@ class vfPoint # vector field point
             .range([height, 0])
 
     update: ->
-
         # VF coords
         @vf.x = @x.invert @pos.x
         @vf.y = @y.invert @pos.y
@@ -239,9 +238,14 @@ class Chart extends d3Object
             .call(@yAxis) 
 
         @marker0 = @obj.append("circle")
-            #.attr('transform', "translate(100,100)")
             .attr("r",10)
             .style("fill","black")
+            .style("stroke","000")
+            .style("stroke-width","1")
+
+        @marker1 = @obj.append("circle")
+            .attr("r",10)
+            .style("fill","red")
             .style("stroke","000")
             .style("stroke-width","1")
 
@@ -274,13 +278,23 @@ class Simulation
         setTimeout (=> @animate() ), 2000
         @stopButton = new StopButton => @stop()
         @persist = new Checkbox "persist" , (v) =>  @.checked = v
-        @vfp1 = new vfPoint (new Vector)
+
+        @vfp0 = new vfPoint
+        @vfp0.pos.x = @vfp0.x 3
+        @vfp0.pos.y = @vfp0.y -3
+
+        @vfp1 = new vfPoint
+        @vfp1.pos.x = @vfp1.x 1
+        @vfp1.pos.y = @vfp1.y 1
         
     snapshot: ->
         Canvas.clear() if not @.checked
         @emitter.directParticles()
+        @vfp0.move()
         @vfp1.move()
-        chart.moveMarker(chart.marker0, @vfp1.pos.x, @vfp1.pos.y)
+        
+        chart.moveMarker(chart.marker0, @vfp0.pos.x, @vfp0.pos.y)
+        chart.moveMarker(chart.marker1, @vfp1.pos.x, @vfp1.pos.y)
         
     animate: ->
         @timer = setInterval (=> @snapshot()), 50
