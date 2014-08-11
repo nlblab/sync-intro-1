@@ -220,6 +220,10 @@ class Chart extends d3Object
 
     constructor: () ->
         super "chart"
+
+        @obj.on("click", null)  # Clear any previous event handlers.
+        #@obj.on("click", => @click())
+        d3.behavior.drag().on("drag", null)  # Clear any previous event handlers.
        
         @obj.attr("width", width + margin.left + margin.right)
         @obj.attr("height", height + margin.top + margin.bottom)
@@ -242,16 +246,33 @@ class Chart extends d3Object
             .style("fill","black")
             .style("stroke","000")
             .style("stroke-width","1")
+            .call(
+                d3.behavior
+                .drag()
+                .origin(()=>{x:@marker0.attr("cx"), y:@marker0.attr("cy")})
+                .on("drag", => @dragMarker(@marker0, d3.event.x, d3.event.y))
+            )
 
         @marker1 = @obj.append("circle")
             .attr("r",10)
             .style("fill","red")
             .style("stroke","000")
             .style("stroke-width","1")
+            .call(
+                d3.behavior
+                .drag()
+                .origin(()=>{x:@marker1.attr("cx"), y:@marker1.attr("cy")})
+                .on("drag", => @dragMarker(@marker1, d3.event.x, d3.event.y))
+            )
+
+    dragMarker: (marker, u, v) ->
+            marker.attr("cx", u)
+            marker.attr("cy", v)
 
     moveMarker: (marker, u, v) ->
-            marker.attr('transform', "translate(#{u+margin.left},#{v+margin.top})")
-        
+            marker.attr("cx", u + margin.left)
+            marker.attr("cy", v + margin.top)
+         
     initAxes: ->
 
         @xscale = d3.scale.linear()
@@ -309,5 +330,4 @@ chart = new Chart
 
 new Simulation
 
-#!end (coffee)
 

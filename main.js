@@ -335,19 +335,42 @@
     height = Canvas.height;
 
     function Chart() {
+      var _this = this;
       Chart.__super__.constructor.call(this, "chart");
+      this.obj.on("click", null);
+      d3.behavior.drag().on("drag", null);
       this.obj.attr("width", width + margin.left + margin.right);
       this.obj.attr("height", height + margin.top + margin.bottom);
       this.obj.attr("class", "chart");
       this.obj.attr("id", "chart");
       this.obj.append("g").attr("class", "axis").attr("transform", "translate(" + margin.left + ", " + (margin.top + height + 10) + ")").call(this.xAxis);
       this.obj.append("g").attr("class", "axis").attr("transform", "translate(" + (margin.left - 10) + ", " + margin.top + ")").call(this.yAxis);
-      this.marker0 = this.obj.append("circle").attr("r", 10).style("fill", "black").style("stroke", "000").style("stroke-width", "1");
-      this.marker1 = this.obj.append("circle").attr("r", 10).style("fill", "red").style("stroke", "000").style("stroke-width", "1");
+      this.marker0 = this.obj.append("circle").attr("r", 10).style("fill", "black").style("stroke", "000").style("stroke-width", "1").call(d3.behavior.drag().origin(function() {
+        return {
+          x: _this.marker0.attr("cx"),
+          y: _this.marker0.attr("cy")
+        };
+      }).on("drag", function() {
+        return _this.dragMarker(_this.marker0, d3.event.x, d3.event.y);
+      }));
+      this.marker1 = this.obj.append("circle").attr("r", 10).style("fill", "red").style("stroke", "000").style("stroke-width", "1").call(d3.behavior.drag().origin(function() {
+        return {
+          x: _this.marker1.attr("cx"),
+          y: _this.marker1.attr("cy")
+        };
+      }).on("drag", function() {
+        return _this.dragMarker(_this.marker1, d3.event.x, d3.event.y);
+      }));
     }
 
+    Chart.prototype.dragMarker = function(marker, u, v) {
+      marker.attr("cx", u);
+      return marker.attr("cy", v);
+    };
+
     Chart.prototype.moveMarker = function(marker, u, v) {
-      return marker.attr('transform', "translate(" + (u + margin.left) + "," + (v + margin.top) + ")");
+      marker.attr("cx", u + margin.left);
+      return marker.attr("cy", v + margin.top);
     };
 
     Chart.prototype.initAxes = function() {

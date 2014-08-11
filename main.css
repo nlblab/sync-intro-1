@@ -26,7 +26,7 @@ h2, .notes {
 
 #container {
     position: relative;
-    width: 450px;
+    width: 900px;
     height: 450px;
     margin: 0 auto;
     top: 10px;
@@ -70,7 +70,7 @@ h2, .notes {
     width: 200px;
     height: 100px;
     background: transparent;
-    /* border: 1px dashed gray; */
+    border: 1px dashed gray;
 }
 
 #x-label {
