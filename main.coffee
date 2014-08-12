@@ -304,7 +304,7 @@ class Scope extends d3Object
     constructor: (initVal)->
 
         # Repeat initial value @N times
-        @N = 101
+        @N = 1001
         @hist = repRow(initVal, @N)
 
         super "scope"
@@ -359,16 +359,6 @@ class Scope extends d3Object
         @x = d3.scale.linear()
             .domain([0, @N-1])
             .range([0, width])
-        ###
-        @y = d3.scale.linear()
-            .domain([0, @N-1])
-            .range([0, height])
-
-        @x = d3.scale.linear()
-            .domain([-1, 1])
-            .range([0, width])
-        ###
-
 
         @xAxis = d3.svg.axis()
             .scale(@x)
@@ -393,11 +383,11 @@ class Simulation
         @vfp0.pos.x = @vfp0.x 3
         @vfp0.pos.y = @vfp0.y -3
 
-        @vfp1 = new vfPoint
-        @vfp1.pos.x = @vfp1.x 1
-        @vfp1.pos.y = @vfp1.y 1
+        #@vfp1 = new vfPoint
+        #@vfp1.pos.x = @vfp1.x 1
+        #@vfp1.pos.y = @vfp1.y 1
 
-        @scope = new Scope @vfp1.pos.x
+        @scope = new Scope @vfp0.pos.x
 
         
     snapshot: ->
@@ -405,23 +395,19 @@ class Simulation
         Canvas.clear() if not @.checked
         @emitter.directParticles()
         @vfp0.move()
-        @vfp1.move()
+        #@vfp1.move()
         
         oscillator.moveMarker(oscillator.marker0, @vfp0.pos.x, @vfp0.pos.y)
-        oscillator.moveMarker(oscillator.marker1, @vfp1.pos.x, @vfp1.pos.y)
+        #coscillator.moveMarker(oscillator.marker1, @vfp1.pos.x, @vfp1.pos.y)
 
-        #(@scope.hist).push @vfp1.pos.x
-        #@scope.hist = @scope.hist[1...(@scope.hist).length]
-        (@scope.hist).unshift @vfp1.pos.y
+        (@scope.hist).unshift @vfp0.pos.y
         @scope.hist = @scope.hist[0...(@scope.hist).length-1]
 
         @scope.screen.selectAll('path.sine').attr("d", @scope.line)
 
-        #console.log "scope.hist>>>", @scope.hist 
-        
     animate: ->
 
-        @timer = setInterval (=> @snapshot()), 50
+        @timer = setInterval (=> @snapshot()), 20
         
     stop: ->
 

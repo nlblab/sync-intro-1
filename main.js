@@ -410,7 +410,7 @@
     function Scope(initVal) {
       var _i, _ref1, _results,
         _this = this;
-      this.N = 101;
+      this.N = 1001;
       this.hist = repRow(initVal, this.N);
       Scope.__super__.constructor.call(this, "scope");
       this.obj.attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom);
@@ -445,16 +445,6 @@
     Scope.prototype.initAxes = function() {
       this.y = d3.scale.linear().domain([-4, 4]).range([0, height]);
       this.x = d3.scale.linear().domain([0, this.N - 1]).range([0, width]);
-      /*
-              @y = d3.scale.linear()
-                  .domain([0, @N-1])
-                  .range([0, height])
-      
-              @x = d3.scale.linear()
-                  .domain([-1, 1])
-                  .range([0, width])
-      */
-
       this.xAxis = d3.svg.axis().scale(this.x).orient("bottom").tickFormat(d3.format("d"));
       return this.yAxis = d3.svg.axis().scale(this.y).orient("left");
     };
@@ -477,10 +467,7 @@
       this.vfp0 = new vfPoint;
       this.vfp0.pos.x = this.vfp0.x(3);
       this.vfp0.pos.y = this.vfp0.y(-3);
-      this.vfp1 = new vfPoint;
-      this.vfp1.pos.x = this.vfp1.x(1);
-      this.vfp1.pos.y = this.vfp1.y(1);
-      this.scope = new Scope(this.vfp1.pos.x);
+      this.scope = new Scope(this.vfp0.pos.x);
     }
 
     Simulation.prototype.snapshot = function() {
@@ -489,10 +476,8 @@
       }
       this.emitter.directParticles();
       this.vfp0.move();
-      this.vfp1.move();
       oscillator.moveMarker(oscillator.marker0, this.vfp0.pos.x, this.vfp0.pos.y);
-      oscillator.moveMarker(oscillator.marker1, this.vfp1.pos.x, this.vfp1.pos.y);
-      this.scope.hist.unshift(this.vfp1.pos.y);
+      this.scope.hist.unshift(this.vfp0.pos.y);
       this.scope.hist = this.scope.hist.slice(0, this.scope.hist.length - 1);
       return this.scope.screen.selectAll('path.sine').attr("d", this.scope.line);
     };
@@ -501,7 +486,7 @@
       var _this = this;
       return this.timer = setInterval((function() {
         return _this.snapshot();
-      }), 50);
+      }), 20);
     };
 
     Simulation.prototype.stop = function() {
