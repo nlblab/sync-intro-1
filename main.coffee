@@ -211,6 +211,7 @@ class d3Object
     append: (obj) -> @obj.append obj
     
     initAxes: -> 
+
         
 class Chart extends d3Object
         
@@ -291,13 +292,100 @@ class Chart extends d3Object
             .scale(@yscale)
             .orient("left")
 
+
+class Scope extends d3Object
+
+    # Screen width/height & margins to scope edge
+    margin = {top: 0, right: 0, bottom: 0, left: 0}
+    width = Canvas.width - margin.left - margin.right
+    height = Canvas.height - margin.top - margin.bottom
+
+    constructor: (initVal)->
+
+        # Repeat initial value @N times
+        @N = 101
+        @hist = repRow(initVal, @N)
+
+        super "scope"
+
+        @obj.attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+
+        @screen = @obj.append('g')
+            .attr("id", "screen")
+            .attr('transform', "translate(#{margin.left}, #{margin.top})")
+            .attr('width', width)
+            .attr('height', height)
+
+        @obj.append("linearGradient")
+            .attr("id", "line-gradient")
+            .attr("gradientUnits", "userSpaceOnUse")
+            .attr("x1", 0).attr("y1", 0)
+            .attr("x2", 0).attr("y2", height)
+            .selectAll("stop").data([
+                {
+                    offset: "0%"
+                    color: "white"
+                }
+                {
+                    offset: "100%"
+                    color: "black"
+                }
+            ])
+            .enter()
+            .append("stop")
+            .attr("offset", (d) -> d.offset )
+            .attr("stop-color", (d) -> d.color)
+
+        @line = d3.svg.line()
+            .x((d) =>  @x(d))
+            .y((d,i) =>  @hist[i])
+            .interpolate("basis")
+                                           
+        @screen.selectAll('path.sine')
+            .data([[0...@N]])
+            .enter()
+            .append("path")
+            .attr("d", @line)
+            .attr("class", "sine")
+                                                                    
+    initAxes: ->
+        
+        @y = d3.scale.linear()
+            .domain([-4, 4])
+            .range([0, height])
+
+        @x = d3.scale.linear()
+            .domain([0, @N-1])
+            .range([0, width])
+        ###
+        @y = d3.scale.linear()
+            .domain([0, @N-1])
+            .range([0, height])
+
+        @x = d3.scale.linear()
+            .domain([-1, 1])
+            .range([0, width])
+        ###
+
+
+        @xAxis = d3.svg.axis()
+            .scale(@x)
+            .orient("bottom")
+            .tickFormat(d3.format("d"))
+
+        @yAxis = d3.svg.axis()
+            .scale(@y)
+            .orient("left")
+
 class Simulation
 
     constructor: ->
 
         @emitter = new Emitter
+
         setTimeout (=> @animate() ), 2000
-        @stopButton = new StopButton => @stop()
+        #@stopButton = new StopButton => @stop()
         @persist = new Checkbox "persist" , (v) =>  @.checked = v
 
         @vfp0 = new vfPoint
@@ -307,8 +395,12 @@ class Simulation
         @vfp1 = new vfPoint
         @vfp1.pos.x = @vfp1.x 1
         @vfp1.pos.y = @vfp1.y 1
+
+        @scope = new Scope @vfp1.pos.x
+
         
     snapshot: ->
+
         Canvas.clear() if not @.checked
         @emitter.directParticles()
         @vfp0.move()
@@ -316,15 +408,26 @@ class Simulation
         
         chart.moveMarker(chart.marker0, @vfp0.pos.x, @vfp0.pos.y)
         chart.moveMarker(chart.marker1, @vfp1.pos.x, @vfp1.pos.y)
+
+        #(@scope.hist).push @vfp1.pos.x
+        #@scope.hist = @scope.hist[1...(@scope.hist).length]
+        (@scope.hist).unshift @vfp1.pos.y
+        @scope.hist = @scope.hist[0...(@scope.hist).length-1]
+
+        @scope.screen.selectAll('path.sine').attr("d", @scope.line)
+
+        #console.log "scope.hist>>>", @scope.hist 
         
     animate: ->
+
         @timer = setInterval (=> @snapshot()), 50
         
     stop: ->
+
         clearInterval @timer
         @timer = null
-        @stopButton?.remove()
-        $("#run_button").prop("disabled", false)
+        #@stopButton?.remove()
+        #$("#run_button").prop("disabled", false)
         
 chart = new Chart
 
