@@ -60,19 +60,20 @@ class Vector
 
 class Canvas
 
-    @width = 320
-    @height = 320
-    
-    @canvas = $("#vector-field")[0]
-    @canvas.width = @width
-    @canvas.height = @height
-    @ctx = @canvas.getContext('2d')
+    @margin = {left:65, top: 65} 
+    @width = 450 - @margin.left - @margin.top
+    @height = 450 - @margin.left - @margin.top
+
+    @canvas = $("#vector-field")
+    @canvas.css("left","#{@margin.left}px").css("top","#{@margin.top}px")
+    @canvas[0].width = @width
+    @canvas[0].height = @height
+
+    @ctx = @canvas[0].getContext('2d')
     @clear: -> @ctx.clearRect(0, 0, @width, @height)
-    
     @square: (pos, size, color) ->
         @ctx.fillStyle = color
         @ctx.fillRect(pos.x, pos.y, size, size)
-
 
 class vfPoint # vector field point
 
@@ -213,14 +214,14 @@ class d3Object
     initAxes: -> 
 
         
-class Chart extends d3Object
+class Oscillator extends d3Object
         
     margin = {top: 65, right: 65, bottom: 65, left: 65}
     width = Canvas.width # 450 - margin.left - margin.right
     height = Canvas.height # 450 - margin.top - margin.bottom
 
     constructor: () ->
-        super "chart"
+        super "oscillator"
 
         @obj.on("click", null)  # Clear any previous event handlers.
         #@obj.on("click", => @click())
@@ -228,8 +229,8 @@ class Chart extends d3Object
        
         @obj.attr("width", width + margin.left + margin.right)
         @obj.attr("height", height + margin.top + margin.bottom)
-        @obj.attr("class","chart")
-        @obj.attr("id", "chart")
+        @obj.attr("class","oscillator")
+        @obj.attr("id", "oscillator")
 
         @obj.append("g")
             .attr("class", "axis")
@@ -406,8 +407,8 @@ class Simulation
         @vfp0.move()
         @vfp1.move()
         
-        chart.moveMarker(chart.marker0, @vfp0.pos.x, @vfp0.pos.y)
-        chart.moveMarker(chart.marker1, @vfp1.pos.x, @vfp1.pos.y)
+        oscillator.moveMarker(oscillator.marker0, @vfp0.pos.x, @vfp0.pos.y)
+        oscillator.moveMarker(oscillator.marker1, @vfp1.pos.x, @vfp1.pos.y)
 
         #(@scope.hist).push @vfp1.pos.x
         #@scope.hist = @scope.hist[1...(@scope.hist).length]
@@ -429,7 +430,7 @@ class Simulation
         #@stopButton?.remove()
         #$("#run_button").prop("disabled", false)
         
-chart = new Chart
+oscillator = new Oscillator
 
 new Simulation
 

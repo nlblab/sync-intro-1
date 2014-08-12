@@ -37,14 +37,14 @@ h2, .notes {
 
 .vector-field {
     position: absolute;
-    top: 65px;
-    left: 65px;
+    #top: 65px;
+    #left: 65px;
     background-color: transparent;
     border: 1px dashed blue;
     border-radius: 10px;
 }
       
-#chart {
+#oscillator {
     position: absolute;
     top: 0px;
     left: 0px;
