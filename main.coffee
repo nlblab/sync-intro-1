@@ -4,7 +4,7 @@
 Number.prototype.pow = (p) -> Math.pow this, p
 
 WebFontConfig = google:
-  families: ["Reenie+Beanie::latin"]
+    families: ["Reenie+Beanie::latin"]
 
 #$("#run_button").prop("disabled", true)
 
@@ -21,6 +21,8 @@ yMax = 4 # vertical plot limit
 
 {rk, ode} = $blab.ode # Import ODE solver
 
+mu = 1
+
 
 # work around unicode issue
 char = (id, code) -> $(".#{id}").html "&#{code};"
@@ -32,11 +34,12 @@ char "equals", "#61"
 # Vector field (<a href="http://en.wikipedia.org/wiki/Van_der_Pol_oscillator">Van der Pol</a>)
 
 # VdP equation
-f = (t, v) -> 
+f = (t, v, mu) -> 
 	[
-    v[0]-v[0].pow(3)/3+v[1] # $\dot{x} = x - x^3/3 + y$
-    -v[0] # $\dot{y} = -x$
+        v[1]
+        mu*(1-v[0]*v[0])*v[1]-v[0]
 	]
+
 
 class Vector
 
@@ -105,7 +108,7 @@ class vfPoint # vector field point
         @vf.y = @y.invert @pos.y
         
         # Velocity (screen units)
-        vel = f(0, [@vf.x, @vf.y])
+        vel = f(0, [@vf.x, @vf.y], mu)
         @vel.x = @x.invert vel[0]
         @vel.y = @y.invert vel[1]
 
@@ -116,7 +119,7 @@ class vfPoint # vector field point
         @update()
         
         # Runge Kutta step
-        w = ode(rk[1], f, [0, 0.02], [@vf.x, @vf.y])[1]
+        w = ode(rk[1], f, [0, 0.02], [@vf.x, @vf.y], mu)[1]
         # map VF coords to screen coords
         @pos.x = @x w[0]
         @pos.y = @y w[1]
@@ -407,7 +410,7 @@ class Simulation
 
     animate: ->
 
-        @timer = setInterval (=> @snapshot()), 20
+        @timer = setInterval (=> @snapshot()), 50
         
     stop: ->
 
