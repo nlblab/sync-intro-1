@@ -63,7 +63,7 @@ class Vector
 
 class Figure
 
-    @margin = {left:65, top: 65} 
+    @margin = {top: 65, right: 65, bottom: 65, left: 65}
     @width = 450 - @margin.left - @margin.top
     @height = 450 - @margin.left - @margin.top
 
@@ -71,8 +71,8 @@ class Figure
 class Canvas
 
     @margin = {left:65, top: 65} 
-    @width = 450 - @margin.left - @margin.top
-    @height = 450 - @margin.left - @margin.top
+    @width = Figure.width # 450 - @margin.left - @margin.top
+    @height = Figure.height # 450 - @margin.left - @margin.top
 
     @canvas = $("#vector-field")
     @canvas.css("left","#{@margin.left}px").css("top","#{@margin.top}px")
@@ -156,8 +156,36 @@ class Emitter
     
     maxParticles: 500
     rate: 3
-    ch: Canvas.height
-    cw: Canvas.width
+    ch: Figure.height
+    cw: Figure.width
+    
+    constructor: (@mu=1)->
+        @particles = []
+
+    directParticles: ->
+        unless @particles.length > @maxParticles
+            @particles.push(@newParticles()) for [1..@rate]
+            
+        @particles = @particles.filter (p) => p.visible()
+        for particle in @particles
+            particle.move()
+            particle.draw()
+
+    newParticles: ->
+        position = new Vector @cw*Math.random(), @ch*Math.random()
+        new Particle position, @mu 
+
+    updateMu: ->
+        for particle in @particles
+            particle.mu = @mu
+
+
+class Tracker
+    
+    maxParticles: 500
+    rate: 3
+    ch: Figure.height
+    cw: Figure.width
     
     constructor: (@mu=1)->
         @particles = []
@@ -207,8 +235,8 @@ class d3Object
 class Oscillator extends d3Object
         
     margin = {top: 65, right: 65, bottom: 65, left: 65}
-    width = Canvas.width # 450 - margin.left - margin.right
-    height = Canvas.height # 450 - margin.top - margin.bottom
+    width = Figure.width # 450 - margin.left - margin.right
+    height = Figure.height # 450 - margin.top - margin.bottom
 
     constructor: (X) ->
         super X 
@@ -298,8 +326,8 @@ class Scope extends d3Object
 
     # Screen width/height & margins to scope edge
     margin = {top: 0, right: 0, bottom: 0, left: 0}
-    width = Canvas.width - margin.left - margin.right
-    height = Canvas.height - margin.top - margin.bottom
+    width = Figure.width - margin.left - margin.right
+    height = Figure.height - margin.top - margin.bottom
 
     constructor: (scope, initVal, color)->
 
@@ -389,6 +417,9 @@ class IntroSim
         $("#mu-slider").on "change", => @updateMu()
         @updateMu()
 
+        d3.selectAll("#intro-stop-button").on "click", => @stop()
+        d3.selectAll("#intro-start-button").on "click", => @start()
+
         setTimeout (=> @animate() ), 2000
 
     updateMu: ->
@@ -417,6 +448,14 @@ class IntroSim
     animate: ->
         @timer = setInterval (=> @snapshot()), 50
 
+    stop: ->
+        clearInterval @timer
+        @timer = null
+
+    start: ->
+        setTimeout (=> @animate() ), 20
+
+
 class DistSim
 
     # Illustrate effect of disturbances with two phase trajectories.
@@ -426,17 +465,17 @@ class DistSim
         @oscillator = new Oscillator "dist-oscillator"
         
         @point0 = new vfPoint
-        @initVectorField(@point0, @u0, @v0, @oscillator.marker0)
+        @initPointMarker(@point0, @u0, @v0, @oscillator.marker0)
 
         @point1 = new vfPoint
-        @initVectorField(@point1, @u1, @v1, @oscillator.marker1)
+        @initPointMarker(@point1, @u1, @v1, @oscillator.marker1)
 
-        d3.selectAll("#stop-button").on "click", => @stop()
-        d3.selectAll("#start-button").on "click", => @start()
+        d3.selectAll("#dist-stop-button").on "click", => @stop()
+        d3.selectAll("#dist-start-button").on "click", => @start()
 
         setTimeout (=> @start() ), 2000
 
-    initVectorField: (point, u, v, marker) ->
+    initPointMarker: (point, u, v, marker) ->
         # initialize vector field point at (u,v) and sync marker
         point.pos.x = point.x u # convert to screen units
         point.pos.y = point.y v
@@ -459,7 +498,6 @@ class DistSim
     stop: ->
         console.log "point", @point0.pos.x
         console.log "marker", @oscillator.marker0.attr("cx")
- 
 
         clearInterval @timer
         @timer = null
@@ -474,7 +512,7 @@ class DistSim
         setTimeout (=> @animate() ), 20
 
         
-#introSim = new IntroSim
+introSim = new IntroSim
 distSim = new DistSim
 
 
