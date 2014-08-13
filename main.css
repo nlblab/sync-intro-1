@@ -145,3 +145,11 @@ h2, .notes {
   opacity: 1;
 }
 
+.text-buttons {
+    cursor: pointer;
+    background: #ddf;
+    padding-left: 5px;
+    padding-right: 5px;
+    /*border-bottom: 1px dotted green;*/
+    border-radius: 10px;
+}

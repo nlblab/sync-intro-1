@@ -383,7 +383,6 @@ class IntroSim
         @persist = new Checkbox "persist" , (v) =>  @.checked = v
 
         $("#mu-slider").on "change", => @updateMu()
-        #$("#mu-slider").val(2)
         @updateMu()
 
         setTimeout (=> @animate() ), 2000
@@ -414,47 +413,50 @@ class IntroSim
     animate: ->
         @timer = setInterval (=> @snapshot()), 50
 
-
 class DistSim
 
     constructor: ->
 
-        @emitter = new Emitter
-        setTimeout (=> @animate() ), 2000
-        @persist = new Checkbox "persist" , (v) =>  @.checked = v
-
-        @vfp0 = new vfPoint
-        @vfp0.pos.x = @vfp0.x 3
-        @vfp0.pos.y = @vfp0.y -3
-
-        @scope = new Scope @vfp0.pos.x
+        @oscillator = new Oscillator "dist-oscillator"
         
-    snapshot: ->
+        @markerPoint0 = new vfPoint
+        @markerPoint0.pos.x = @markerPoint0.x 3
+        @markerPoint0.pos.y = @markerPoint0.y -3
+        @markerPoint0.mu = 0.1
 
-        Canvas.clear() if not @.checked
-        @emitter.directParticles()
-        @vfp0.move()
-        oscillator.moveMarker(oscillator.marker0, @vfp0.pos.x, @vfp0.pos.y)
-        (@scope.hist).unshift @vfp0.pos.y
-        @scope.hist = @scope.hist[0...(@scope.hist).length-1]
-        @scope.screen.selectAll('path.trace').attr("d", @scope.line)
+        @markerPoint1 = new vfPoint
+        @markerPoint1.pos.x = @markerPoint1.x 3
+        @markerPoint1.pos.y = @markerPoint1.y 2
+        @markerPoint1.mu = 0.1
+
+        d3.selectAll("#stop-button").on "click", => @stop()
+        d3.selectAll("#start-button").on "click", => @start()
+
+        setTimeout (=> @animate() ), 2000
+
+    snapshot: ->
+        @drawMarker()
+
+    drawMarker: ->
+        @markerPoint0.move()
+        @markerPoint1.move()
+        @oscillator.moveMarker(@oscillator.marker0, @markerPoint0.pos.x, @markerPoint0.pos.y)
+        @oscillator.moveMarker(@oscillator.marker1, @markerPoint1.pos.x, @markerPoint1.pos.y)
 
     animate: ->
+        @timer = setInterval (=> @snapshot()), 20
 
-        @timer = setInterval (=> @snapshot()), 50
+    stop: ->
+        clearInterval @timer
+        @timer = null
+
+    start: ->
+        setTimeout (=> @animate() ), 20
 
         
-#oscillator = new Oscillator "intro-oscillator"
-#oscillator2 = new Oscillator "dist-oscillator"
+#introSim = new IntroSim
+distSim = new DistSim
 
-introSim = new IntroSim
-#distSim = new DistSim
 
-###
-$("#mu-slider").on "change", ->
-        k = parseFloat(d3.select("#mu-slider").property("value"))
-        console.log "k>>>", k
-        introSim.vfp0.mu = k
-        introSim.emitter.mu = k
-        introSim.emitter.updateMu() 
-###
+#d3.selectAll("#stop-button").on "click", ->
+#    distSim.stop()
