@@ -2,14 +2,21 @@
 
 <div id="text">
 
-== Introduction to Synchronization (part I) ==
+  <h2>Introduction to Synchronization (part I)</h2>
 
   See: Arkady Pikovsky, Michael Rosenblum, Jurgen Kurths
 
   <div class="left_col">
+
+    <h3>test heading</h3>
+
     What is synchronization?
 
     adjustment of rhythms of oscillators due to their weak interaction
+
+  </div>
+
+  <div class="right_col">
 
     What is an oscillator? E.g., electronic (Collpits etc., lasers), 
     mechanical (clocks, pendulum); biology (fireflys ...). All have
@@ -18,8 +25,33 @@
     (Toy problem?). Dyncamial system. Autonomous, self-sustained, 
     self/auto-oscillatory
 
-    [The main universal property is that these are all active systems that taken apart, or being isolated, continue to oscillate in their own rhythms.]
+    [The main universal property is that these are all active systems that 
+    taken apart, or being isolated, continue to oscillate in their own rhythms.]
  
+  </div>
+
+  <div class="clear"></div>
+
+  <div id="intro-container">
+    <canvas id="vector-field" class="vector-field"></canvas>
+    <div id="intro-oscillator"></div>
+
+    <div id="checkboxes" class="canvas-text">
+      <input type="checkbox" id="persist" value="showSunPhotons">Persistence</input>
+    </div>
+    <div id="sliders">
+      <div id="mu-value"></div>
+      <input type="range" id="mu-slider" step="0.1" min="0" max="5" value="1">
+    </div>
+
+    <div id="x-label">$x$</div>
+    <div id="y-label">$y$</div>
+    <div id="x-scope"></div>
+    <div id="y-scope"></div>
+  </div>
+  
+  <div class="left_col">
+
     What is coupling? E.g., Huygens clocks. Oscillator pulling in 
     mobile phones. Periodic disturbance. Consider one-direction only
     here. Depends on coupling strength and freq separation.
@@ -37,20 +69,22 @@
 
     Amplitude is stabe --- phase is free.
 
-
   </div>
 
   <div class="clear"></div>
 
-  <div id="container">
-    <canvas id="vector-field" class="vector-field"></canvas>
-    <div id="oscillator"></div>
-    <div id="checkboxes" class="canvas-text">
-      <input type="checkbox" id="persist" value="showSunPhotons">Persistence</input>
-    </div>
-    <div id="x-label">$x$</div>
-    <div id="y-label">$y$</div>
-    <div id="scope"></div>
+  <h3>Disturbances</h3>
+
+  <div class="left_col">
+    asdfg
   </div>
-  
+
+  <div class="right_col">
+    <div id="dist-container">
+      <div id="dist-oscillator"></div>
+    </div>
+  </div>
+
 </div>
+  
+

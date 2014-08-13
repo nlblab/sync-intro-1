@@ -21,7 +21,7 @@ yMax = 4 # vertical plot limit
 
 {rk, ode} = $blab.ode # Import ODE solver
 
-mu = 1
+#mu = 1
 
 
 # work around unicode issue
@@ -83,10 +83,15 @@ class vfPoint # vector field point
     width  = 320
     height = 320
     
-    constructor: (@pos={x:0, y:0}) ->
+    constructor: (@pos={x:0, y:0}, @mu=1) ->
+    #constructor: () ->
 
+        #@mu = 1 # VdP nonlinearity
+
+        #@pos = {x:0, y:0} # position
+        #console.log "pos>>>", @pos
         @vel = new Vector 0, 0 # velocity
-        @vf = new Vector 0, 0 # VF coords
+        @vf = new Vector 0, 0 # vector-field coords
         @d = 0 # distance
 
         @scales() # funcs to X-form between screen position and VF coords
@@ -108,7 +113,7 @@ class vfPoint # vector field point
         @vf.y = @y.invert @pos.y
         
         # Velocity (screen units)
-        vel = f(0, [@vf.x, @vf.y], mu)
+        vel = f(0, [@vf.x, @vf.y], @mu)
         @vel.x = @x.invert vel[0]
         @vel.y = @y.invert vel[1]
 
@@ -119,7 +124,7 @@ class vfPoint # vector field point
         @update()
         
         # Runge Kutta step
-        w = ode(rk[1], f, [0, 0.02], [@vf.x, @vf.y], mu)[1]
+        w = ode(rk[1], f, [0, 0.02], [@vf.x, @vf.y], @mu)[1]
         # map VF coords to screen coords
         @pos.x = @x w[0]
         @pos.y = @y w[1]
@@ -136,8 +141,8 @@ class vfPoint # vector field point
 
 class Particle extends vfPoint
 
-    constructor: (Z) ->
-        super Z
+    constructor: (Z, mu) ->
+        super Z, mu
 
         @size = 2
         @color = ["red", "green", "blue"][Math.floor(3*Math.random())]
@@ -147,13 +152,13 @@ class Particle extends vfPoint
 
             
 class Emitter
-
+    
     maxParticles: 500
     rate: 3
     ch: Canvas.height
     cw: Canvas.width
     
-    constructor: ->
+    constructor: (@mu=1)->
         @particles = []
 
     directParticles: ->
@@ -167,31 +172,12 @@ class Emitter
 
     newParticles: ->
         position = new Vector @cw*Math.random(), @ch*Math.random()
-        new Particle position 
-            
-class StopButton
+        new Particle position, @mu 
 
-    id: "stop_simulation_button"
+    updateMu: ->
+        for particle in @particles
+            particle.mu = @mu
 
-    constructor: (@stop) ->
-        @button = $ "##{@id}"
-        @button.remove() if @button.length
-        @button = $ "<button>",
-            id: @id
-            type: "button"
-            text: "Stop"
-            title: "Stop simulation"
-            click: => @stop()
-            css:
-                fontSize: "7pt"
-                width: "50px"
-                marginLeft: "5px"
-        $("#run_button_container").append @button
- 
-    text: (t) ->
-        @button.text t
-        
-    remove: -> @button.remove()
     
 class Checkbox
 
@@ -223,8 +209,8 @@ class Oscillator extends d3Object
     width = Canvas.width # 450 - margin.left - margin.right
     height = Canvas.height # 450 - margin.top - margin.bottom
 
-    constructor: () ->
-        super "oscillator"
+    constructor: (X) ->
+        super X 
 
         @obj.on("click", null)  # Clear any previous event handlers.
         #@obj.on("click", => @click())
@@ -246,11 +232,18 @@ class Oscillator extends d3Object
             .attr("transform","translate(#{margin.left-10}, #{margin.top})")
             .call(@yAxis) 
 
+        @limitCircle = @obj.append("circle")
+            .attr("cx", @xscale(0)+margin.left)
+            .attr("cy", @yscale(0)+margin.top)
+            .attr("r", @xscale(2)-@xscale(0))
+            .style("fill", "transparent")
+            .style("stroke", "ccc")
+
         @marker0 = @obj.append("circle")
-            .attr("r",10)
-            .style("fill","black")
-            .style("stroke","000")
-            .style("stroke-width","1")
+            .attr("r", 5)
+            .style("fill", "black")
+            .style("stroke", "000")
+            .style("stroke-width", "1")
             .call(
                 d3.behavior
                 .drag()
@@ -304,13 +297,13 @@ class Scope extends d3Object
     width = Canvas.width - margin.left - margin.right
     height = Canvas.height - margin.top - margin.bottom
 
-    constructor: (initVal)->
+    constructor: (scope, initVal, color)->
 
         # Repeat initial value @N times
         @N = 1001
         @hist = repRow(initVal, @N)
 
-        super "scope"
+        super scope
 
         @obj.attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
@@ -324,8 +317,8 @@ class Scope extends d3Object
         @obj.append("linearGradient")
             .attr("id", "line-gradient")
             .attr("gradientUnits", "userSpaceOnUse")
-            .attr("x1", 0).attr("y1", 0)
-            .attr("x2", 0).attr("y2", height)
+            .attr("x1", width).attr("y1", 0)
+            .attr("x2", 0).attr("y2", 0)
             .selectAll("stop").data([
                 {
                     offset: "0%"
@@ -333,7 +326,7 @@ class Scope extends d3Object
                 }
                 {
                     offset: "100%"
-                    color: "black"
+                    color: color
                 }
             ])
             .enter()
@@ -346,12 +339,12 @@ class Scope extends d3Object
             .y((d,i) =>  @hist[i])
             .interpolate("basis")
                                            
-        @screen.selectAll('path.sine')
+        @screen.selectAll('path.trace')
             .data([[0...@N]])
             .enter()
             .append("path")
             .attr("d", @line)
-            .attr("class", "sine")
+            .attr("class", "trace")
                                                                     
     initAxes: ->
         
@@ -372,55 +365,96 @@ class Scope extends d3Object
             .scale(@y)
             .orient("left")
 
-class Simulation
+class IntroSim
+
+    constructor: ->
+
+        @oscillator = new Oscillator "intro-oscillator"
+        
+        @vectorField = new Emitter
+
+        @markerPoint = new vfPoint
+        @markerPoint.pos.x = @markerPoint.x 3
+        @markerPoint.pos.y = @markerPoint.y -3
+
+        @scopeX = new Scope "x-scope", @markerPoint.pos.x, "green"
+        @scopeY = new Scope "y-scope", @markerPoint.pos.y, "blue"
+
+        @persist = new Checkbox "persist" , (v) =>  @.checked = v
+
+        $("#mu-slider").on "change", => @updateMu()
+        #$("#mu-slider").val(2)
+        @updateMu()
+
+        setTimeout (=> @animate() ), 2000
+
+    updateMu: ->
+        k = parseFloat(d3.select("#mu-slider").property("value"))
+        @markerPoint.mu = k
+        @vectorField.mu = k
+        @vectorField.updateMu() 
+        d3.select("#mu-value").html(k)
+        
+    snapshot: ->
+        Canvas.clear() if not @.checked
+        @vectorField.directParticles()
+        @drawMarker()
+        @drawScope(@scopeX, @markerPoint.pos.x)
+        @drawScope(@scopeY, @markerPoint.pos.y)
+
+    drawMarker: ->
+        @markerPoint.move()
+        @oscillator.moveMarker(@oscillator.marker0, @markerPoint.pos.x, @markerPoint.pos.y)
+
+    drawScope: (scope, val)->
+        (scope.hist).unshift val
+        scope.hist = scope.hist[0...(scope.hist).length-1]
+        scope.screen.selectAll('path.trace').attr("d", scope.line)
+        
+    animate: ->
+        @timer = setInterval (=> @snapshot()), 50
+
+
+class DistSim
 
     constructor: ->
 
         @emitter = new Emitter
-
         setTimeout (=> @animate() ), 2000
-        #@stopButton = new StopButton => @stop()
         @persist = new Checkbox "persist" , (v) =>  @.checked = v
 
         @vfp0 = new vfPoint
         @vfp0.pos.x = @vfp0.x 3
         @vfp0.pos.y = @vfp0.y -3
 
-        #@vfp1 = new vfPoint
-        #@vfp1.pos.x = @vfp1.x 1
-        #@vfp1.pos.y = @vfp1.y 1
-
         @scope = new Scope @vfp0.pos.x
-
         
     snapshot: ->
 
         Canvas.clear() if not @.checked
         @emitter.directParticles()
         @vfp0.move()
-        #@vfp1.move()
-        
         oscillator.moveMarker(oscillator.marker0, @vfp0.pos.x, @vfp0.pos.y)
-        #coscillator.moveMarker(oscillator.marker1, @vfp1.pos.x, @vfp1.pos.y)
-
         (@scope.hist).unshift @vfp0.pos.y
         @scope.hist = @scope.hist[0...(@scope.hist).length-1]
-
-        @scope.screen.selectAll('path.sine').attr("d", @scope.line)
+        @scope.screen.selectAll('path.trace').attr("d", @scope.line)
 
     animate: ->
 
         @timer = setInterval (=> @snapshot()), 50
+
         
-    stop: ->
+#oscillator = new Oscillator "intro-oscillator"
+#oscillator2 = new Oscillator "dist-oscillator"
 
-        clearInterval @timer
-        @timer = null
-        #@stopButton?.remove()
-        #$("#run_button").prop("disabled", false)
-        
-oscillator = new Oscillator
+introSim = new IntroSim
+#distSim = new DistSim
 
-new Simulation
-
-
+###
+$("#mu-slider").on "change", ->
+        k = parseFloat(d3.select("#mu-slider").property("value"))
+        console.log "k>>>", k
+        introSim.vfp0.mu = k
+        introSim.emitter.mu = k
+        introSim.emitter.updateMu() 
+###
