@@ -61,6 +61,13 @@ class Vector
         @y = m*Math.sin(a)
         this
 
+class Figure
+
+    @margin = {left:65, top: 65} 
+    @width = 450 - @margin.left - @margin.top
+    @height = 450 - @margin.left - @margin.top
+
+
 class Canvas
 
     @margin = {left:65, top: 65} 
@@ -80,16 +87,11 @@ class Canvas
 
 class vfPoint # vector field point
 
-    width  = 320
-    height = 320
+    width  = Figure.width
+    height = Figure.height
     
     constructor: (@pos={x:0, y:0}, @mu=1) ->
-    #constructor: () ->
 
-        #@mu = 1 # VdP nonlinearity
-
-        #@pos = {x:0, y:0} # position
-        #console.log "pos>>>", @pos
         @vel = new Vector 0, 0 # velocity
         @vf = new Vector 0, 0 # vector-field coords
         @d = 0 # distance
@@ -138,7 +140,6 @@ class vfPoint # vector field point
             @vel.mag() > 0 and
             @d < 1200
     
-
 class Particle extends vfPoint
 
     constructor: (Z, mu) ->
@@ -218,7 +219,6 @@ class Oscillator extends d3Object
        
         @obj.attr("width", width + margin.left + margin.right)
         @obj.attr("height", height + margin.top + margin.bottom)
-        @obj.attr("class","oscillator")
         @obj.attr("id", "oscillator")
 
         @obj.append("g")
@@ -232,14 +232,18 @@ class Oscillator extends d3Object
             .attr("transform","translate(#{margin.left-10}, #{margin.top})")
             .call(@yAxis) 
 
-        @limitCircle = @obj.append("circle")
-            .attr("cx", @xscale(0)+margin.left)
-            .attr("cy", @yscale(0)+margin.top)
+        @plot = @obj.append("g")
+            .attr("id", "plot")
+            .attr("transform", "translate(#{margin.left},#{margin.top})")
+
+        @limitCircle = @plot.append("circle")
+            .attr("cx", @xscale(0)+margin.left*0)
+            .attr("cy", @yscale(0)+margin.top*0)
             .attr("r", @xscale(2)-@xscale(0))
             .style("fill", "transparent")
             .style("stroke", "ccc")
 
-        @marker0 = @obj.append("circle")
+        @marker0 = @plot.append("circle")
             .attr("r", 5)
             .style("fill", "black")
             .style("stroke", "000")
@@ -250,8 +254,8 @@ class Oscillator extends d3Object
                 .origin(()=>{x:@marker0.attr("cx"), y:@marker0.attr("cy")})
                 .on("drag", => @dragMarker(@marker0, d3.event.x, d3.event.y))
             )
-
-        @marker1 = @obj.append("circle")
+     
+        @marker1 = @plot.append("circle")
             .attr("r",10)
             .style("fill","red")
             .style("stroke","000")
@@ -268,8 +272,8 @@ class Oscillator extends d3Object
             marker.attr("cy", v)
 
     moveMarker: (marker, u, v) ->
-            marker.attr("cx", u + margin.left)
-            marker.attr("cy", v + margin.top)
+            marker.attr("cx", u + margin.left*0)
+            marker.attr("cy", v + margin.top*0)
          
     initAxes: ->
 
@@ -415,42 +419,58 @@ class IntroSim
 
 class DistSim
 
-    constructor: ->
+    # Illustrate effect of disturbances with two phase trajectories.
+    
+    constructor: (@u0=3, @v0=-3, @u1=3, @v1=2) ->
 
         @oscillator = new Oscillator "dist-oscillator"
         
-        @markerPoint0 = new vfPoint
-        @markerPoint0.pos.x = @markerPoint0.x 3
-        @markerPoint0.pos.y = @markerPoint0.y -3
-        @markerPoint0.mu = 0.1
+        @point0 = new vfPoint
+        @initVectorField(@point0, @u0, @v0, @oscillator.marker0)
 
-        @markerPoint1 = new vfPoint
-        @markerPoint1.pos.x = @markerPoint1.x 3
-        @markerPoint1.pos.y = @markerPoint1.y 2
-        @markerPoint1.mu = 0.1
+        @point1 = new vfPoint
+        @initVectorField(@point1, @u1, @v1, @oscillator.marker1)
 
         d3.selectAll("#stop-button").on "click", => @stop()
         d3.selectAll("#start-button").on "click", => @start()
 
-        setTimeout (=> @animate() ), 2000
+        setTimeout (=> @start() ), 2000
+
+    initVectorField: (point, u, v, marker) ->
+        # initialize vector field point at (u,v) and sync marker
+        point.pos.x = point.x u # convert to screen units
+        point.pos.y = point.y v
+        point.mu = 0.1
+        marker.attr("cx", point.pos.x)
+        marker.attr("cy", point.pos.y)
 
     snapshot: ->
         @drawMarker()
 
     drawMarker: ->
-        @markerPoint0.move()
-        @markerPoint1.move()
-        @oscillator.moveMarker(@oscillator.marker0, @markerPoint0.pos.x, @markerPoint0.pos.y)
-        @oscillator.moveMarker(@oscillator.marker1, @markerPoint1.pos.x, @markerPoint1.pos.y)
+        @point0.move()
+        @point1.move()
+        @oscillator.moveMarker(@oscillator.marker0, @point0.pos.x, @point0.pos.y)
+        @oscillator.moveMarker(@oscillator.marker1, @point1.pos.x, @point1.pos.y)
 
     animate: ->
         @timer = setInterval (=> @snapshot()), 20
 
     stop: ->
+        console.log "point", @point0.pos.x
+        console.log "marker", @oscillator.marker0.attr("cx")
+ 
+
         clearInterval @timer
         @timer = null
 
     start: ->
+        # Update vector field points (marker may have been dragged).
+        @point0.pos.x = @oscillator.marker0.attr("cx")
+        @point0.pos.y = @oscillator.marker0.attr("cy")
+        @point1.pos.x = @oscillator.marker1.attr("cx")
+        @point1.pos.y = @oscillator.marker1.attr("cy")
+
         setTimeout (=> @animate() ), 20
 
         
