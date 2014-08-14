@@ -16,12 +16,7 @@ cos = Math.cos
 min = Math.min
 repRow = (val, m) -> val for [1..m]
 
-xMax = 4 # horizontal plot limit
-yMax = 4 # vertical plot limit
-
 {rk, ode} = $blab.ode # Import ODE solver
-
-#mu = 1
 
 
 # work around unicode issue
@@ -62,6 +57,9 @@ class Vector
         this
 
 class Figure
+
+    @xMax = 4 # horizontal plot limit
+    @yMax = 4 # vertical plot limit
 
     @margin = {top: 65, right: 65, bottom: 65, left: 65}
     @width = 450 - @margin.left - @margin.top
@@ -107,10 +105,10 @@ class vfPoint # vector field point
     scales: ->
         
         @x = d3.scale.linear()
-            .domain([-xMax, xMax])
+            .domain([-Figure.xMax, Figure.xMax])
             .range([0, width])
         @y = d3.scale.linear()
-            .domain([-yMax, yMax])
+            .domain([-Figure.yMax, Figure.yMax])
             .range([height, 0])
 
     update: ->
@@ -178,34 +176,6 @@ class Emitter
     newParticles: ->
         position = new Vector @cw*Math.random(), @ch*Math.random()
         new Particle @canvas, position, @mu 
-
-    updateMu: ->
-        for particle in @particles
-            particle.mu = @mu
-
-
-class Tracker
-  
-    maxParticles: 500
-    rate: 3
-    ch: Figure.height
-    cw: Figure.width
-    
-    constructor: (@mu=1)->
-        @particles = []
-
-    directParticles: ->
-        unless @particles.length > @maxParticles
-            @particles.push(@newParticles()) for [1..@rate]
-            
-        @particles = @particles.filter (p) => p.visible()
-        for particle in @particles
-            particle.move()
-            particle.draw()
-
-    newParticles: ->
-        position = new Vector @cw*Math.random(), @ch*Math.random()
-        new Particle position, @mu 
 
     updateMu: ->
         for particle in @particles
@@ -310,7 +280,7 @@ class Oscillator extends d3Object
     initAxes: ->
 
         @xscale = d3.scale.linear()
-            .domain([-xMax, xMax])
+            .domain([-Figure.xMax, Figure.xMax])
             .range([0, width])
 
         @xAxis = d3.svg.axis()
@@ -318,7 +288,7 @@ class Oscillator extends d3Object
             .orient("bottom")
 
         @yscale = d3.scale.linear()
-            .domain([-yMax, yMax])
+            .domain([-Figure.yMax, Figure.yMax])
             .range([height, 0])
 
         @yAxis = d3.svg.axis()
@@ -405,7 +375,7 @@ class IntroSim
 
     constructor: ->
 
-        @canvas = new Canvas "#vector-field"
+        @canvas = new Canvas "#intro-vector-field"
 
         @oscillator = new Oscillator "intro-oscillator"
         
@@ -469,11 +439,11 @@ class DistSim
     constructor: (@u0=3, @v0=-3, @u1=3, @v1=2) ->
 
         @oscillator = new Oscillator "dist-oscillator"
-        
+        @canvas = new Canvas "#dist-vector-field"
         @point0 = new vfPoint
-        @initPointMarker(@point0, @u0, @v0, @oscillator.marker0)
-
         @point1 = new vfPoint
+        
+        @initPointMarker(@point0, @u0, @v0, @oscillator.marker0)
         @initPointMarker(@point1, @u1, @v1, @oscillator.marker1)
 
         d3.selectAll("#dist-stop-button").on "click", => @stop()
@@ -491,6 +461,8 @@ class DistSim
 
     snapshot: ->
         @drawMarker()
+        @canvas.square {x:@point0.pos.x, y:@point0.pos.y}, 2, "black"
+        @canvas.square {x:@point1.pos.x, y:@point1.pos.y}, 2, "red"
 
     drawMarker: ->
         @point0.move()
@@ -502,19 +474,19 @@ class DistSim
         @timer = setInterval (=> @snapshot()), 20
 
     stop: ->
-        #console.log "point", @point0.pos.x
-        #console.log "marker", @oscillator.marker0.attr("cx")
-
         clearInterval @timer
         @timer = null
 
     start: ->
+        
         # Update vector field points (marker may have been dragged).
         @point0.pos.x = @oscillator.marker0.attr("cx")
         @point0.pos.y = @oscillator.marker0.attr("cy")
         @point1.pos.x = @oscillator.marker1.attr("cx")
         @point1.pos.y = @oscillator.marker1.attr("cy")
 
+        @canvas.clear()
+        
         setTimeout (=> @animate() ), 20
 
         
