@@ -70,20 +70,24 @@ class Figure
 
 class Canvas
 
-    @margin = {left:65, top: 65} 
-    @width = Figure.width # 450 - @margin.left - @margin.top
-    @height = Figure.height # 450 - @margin.left - @margin.top
+    margin = Figure.margin
+    width = Figure.width
+    height = Figure.height
 
-    @canvas = $("#vector-field")
-    @canvas.css("left","#{@margin.left}px").css("top","#{@margin.top}px")
-    @canvas[0].width = @width
-    @canvas[0].height = @height
+    constructor: (id) ->
 
-    @ctx = @canvas[0].getContext('2d')
-    @clear: -> @ctx.clearRect(0, 0, @width, @height)
-    @square: (pos, size, color) ->
+        @canvas = $(id) 
+        @canvas.css("left","#{margin.left}px").css("top","#{margin.top}px")
+        @canvas[0].width = width
+        @canvas[0].height = height
+        @ctx = @canvas[0].getContext('2d')
+        
+    clear: -> @ctx.clearRect(0, 0, width, height)
+
+    square: (pos, size, color) ->
         @ctx.fillStyle = color
         @ctx.fillRect(pos.x, pos.y, size, size)
+
 
 class vfPoint # vector field point
 
@@ -142,14 +146,14 @@ class vfPoint # vector field point
     
 class Particle extends vfPoint
 
-    constructor: (Z, mu) ->
+    constructor: (@canvas, Z, mu) ->
         super Z, mu
 
         @size = 2
         @color = ["red", "green", "blue"][Math.floor(3*Math.random())]
 
     draw: ->
-        Canvas.square @pos, @size, @color
+        @canvas.square @pos, @size, @color
 
             
 class Emitter
@@ -159,7 +163,7 @@ class Emitter
     ch: Figure.height
     cw: Figure.width
     
-    constructor: (@mu=1)->
+    constructor: (@canvas, @mu=1)->
         @particles = []
 
     directParticles: ->
@@ -173,7 +177,7 @@ class Emitter
 
     newParticles: ->
         position = new Vector @cw*Math.random(), @ch*Math.random()
-        new Particle position, @mu 
+        new Particle @canvas, position, @mu 
 
     updateMu: ->
         for particle in @particles
@@ -181,7 +185,7 @@ class Emitter
 
 
 class Tracker
-    
+  
     maxParticles: 500
     rate: 3
     ch: Figure.height
@@ -234,9 +238,9 @@ class d3Object
         
 class Oscillator extends d3Object
         
-    margin = {top: 65, right: 65, bottom: 65, left: 65}
-    width = Figure.width # 450 - margin.left - margin.right
-    height = Figure.height # 450 - margin.top - margin.bottom
+    margin = Figure.margin
+    width = Figure.width
+    height = Figure.height
 
     constructor: (X) ->
         super X 
@@ -401,9 +405,11 @@ class IntroSim
 
     constructor: ->
 
+        @canvas = new Canvas "#vector-field"
+
         @oscillator = new Oscillator "intro-oscillator"
         
-        @vectorField = new Emitter
+        @vectorField = new Emitter @canvas
 
         @markerPoint = new vfPoint
         @markerPoint.pos.x = @markerPoint.x 3
@@ -430,7 +436,7 @@ class IntroSim
         d3.select("#mu-value").html(k)
         
     snapshot: ->
-        Canvas.clear() if not @.checked
+        @canvas.clear() if not @.checked
         @vectorField.directParticles()
         @drawMarker()
         @drawScope(@scopeX, @markerPoint.pos.x)
@@ -496,8 +502,8 @@ class DistSim
         @timer = setInterval (=> @snapshot()), 20
 
     stop: ->
-        console.log "point", @point0.pos.x
-        console.log "marker", @oscillator.marker0.attr("cx")
+        #console.log "point", @point0.pos.x
+        #console.log "marker", @oscillator.marker0.attr("cx")
 
         clearInterval @timer
         @timer = null
