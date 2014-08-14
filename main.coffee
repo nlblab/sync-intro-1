@@ -489,10 +489,20 @@ class DistSim
         
         setTimeout (=> @animate() ), 20
 
-        
-introSim = new IntroSim
-distSim = new DistSim
 
+class SyncSim
+
+    # Illustrate synchronization in rotating frame.
+    
+    constructor:  ->
+
+        @oscillator = new Oscillator "sync-oscillator"
+        @canvas = new Canvas "#sync-vector-field"
+
+        
+new IntroSim
+new DistSim
+new SyncSim
 
 #d3.selectAll("#stop-button").on "click", ->
 #    distSim.stop()

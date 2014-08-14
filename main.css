@@ -24,9 +24,8 @@ h2, .notes {
     clear: both;
 }
 
-#intro-container {
+.container {
     position: relative;
-    width: 900px;
     height: 450px;
     margin: 0 auto;
     top: 10px;
@@ -35,15 +34,16 @@ h2, .notes {
     border: 2px solid #ccc;
 }
 
+#intro-container {
+    width: 900px;
+}
+
 #dist-container {
-    position: relative;
     width: 450px;
-    height: 450px;
-    margin: 0 auto;
-    top: 10px;
-    z-index: 10;
-    border-radius: 10px;
-    border: 2px solid #00f;
+}
+
+#sync-container {
+    width: 450px;
 }
 
 .vector-field {
@@ -78,7 +78,6 @@ h2, .notes {
     background: transparent;
     border: 1px dashed green;
 }
-
 
 .axis text {
   font: 10px sans-serif;
