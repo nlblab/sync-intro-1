@@ -332,12 +332,47 @@ class Disturbance extends d3Object
             .attr("stroke", "green")
             .attr("fill", "green")
 
+        @markerEquiv1 = @plot.append("circle")
+            .attr("id", "marker-equiv-1")
+            .attr("r", 5)
+            .attr("cx", @xscale 0 )
+            .attr("cy", @yscale 0.5 )
+            .attr("stroke", "red")
+            .attr("fill", "red")
+
+        @markerEquiv2 = @plot.append("circle")
+            .attr("id", "marker-equiv-2")
+            .attr("r", 5)
+            .attr("cx", @xscale 0 )
+            .attr("cy", @yscale 0.5 )
+            .attr("stroke", "red")
+            .attr("fill", "red")
+
+        @plot.append("circle")
+            .attr("r", @xscale(0.5)-@xscale(0))
+            .attr("cx", @xscale 0 )
+            .attr("cy", @yscale 0 )
+            .attr("stroke", "red")
+            .attr("fill", "transparent")
+
+        @plot.append("circle")
+            .attr("r", @xscale(4)-@xscale(0))
+            .attr("cx", @xscale 0 )
+            .attr("cy", @yscale 0 )
+            .attr("stroke", "black")
+            .attr("fill", "transparent")
+            .style("stroke-dasharray", ("10,3"))
+
+
     move: () ->
         @phi += 0.1
-        @x = @xscale Math.cos(@phi)
-        @y = @yscale Math.sin(@phi)
+        @x = Math.cos(@phi)
+        @y = Math.sin(@phi)
         
-        @markerDist.attr("cy", @y)
+        @markerDist.attr("cy", @yscale @y)
+        @markerEquiv1.attr("cx", @xscale @x/2).attr("cy", @yscale @y/2)
+        @markerEquiv2.attr("cx", @xscale -@x/2).attr("cy", @yscale @y/2)
+        
          
     initAxes: ->
         @xscale = d3.scale.linear()
@@ -582,7 +617,7 @@ class SyncSim
 
     snapshot: ->
         @disturbance.move()
-        @scope.draw @disturbance.y
+        @scope.draw(@disturbance.yscale @disturbance.y)
 
 #new IntroSim
 #new DistSim
