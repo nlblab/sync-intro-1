@@ -274,8 +274,8 @@ class Oscillator extends d3Object
             marker.attr("cy", v)
 
     moveMarker: (marker, u, v) ->
-            marker.attr("cx", u + margin.left*0)
-            marker.attr("cy", v + margin.top*0)
+            marker.attr("cx", u)
+            marker.attr("cy", v)
          
     initAxes: ->
 
@@ -296,34 +296,84 @@ class Oscillator extends d3Object
             .orient("left")
 
 
+class Disturbance extends d3Object
+        
+    margin = Figure.margin
+    width = Figure.width
+    height = Figure.height
+
+    constructor: (X) ->
+        super X 
+
+        @phi = 0
+
+        # Clear any previous event handlers.
+        @obj.on("click", null)  
+        d3.behavior.drag().on("drag", null)
+       
+        @obj.attr("width", width + margin.left + margin.right)
+        @obj.attr("height", height + margin.top + margin.bottom)
+        @obj.attr("id", "disturbance")
+
+        @obj.append("g")
+            .attr("class", "axis")
+            .attr("transform","translate(#{margin.left-10}, #{margin.top})")
+            .call(@yAxis) 
+
+        @plot = @obj.append("g")
+            .attr("id", "plot")
+            .attr("transform", "translate(#{margin.left},#{margin.top})")
+
+        @markerDist = @plot.append("circle")
+            .attr("id", "marker-disturbance")
+            .attr("r", 5)
+            .attr("cx", @xscale 0 )
+            .attr("cy", @yscale 0 )
+            .attr("stroke", "green")
+            .attr("fill", "green")
+
+    move: () ->
+        @phi += 0.1
+        @x = @xscale Math.cos(@phi)
+        @y = @yscale Math.sin(@phi)
+        
+        @markerDist.attr("cy", @y)
+         
+    initAxes: ->
+        @xscale = d3.scale.linear()
+            .domain([-Figure.xMax, Figure.xMax])
+            .range([0, width])
+
+        @yscale = d3.scale.linear()
+            .domain([-Figure.yMax, Figure.yMax])
+            .range([height, 0])
+
+        @yAxis = d3.svg.axis()
+            .scale(@yscale)
+            .orient("left")
+
 class Scope extends d3Object
 
-    # Screen width/height & margins to scope edge
-    margin = {top: 0, right: 0, bottom: 0, left: 0}
-    width = Figure.width - margin.left - margin.right
-    height = Figure.height - margin.top - margin.bottom
-
-    constructor: (scope, initVal, color)->
+    constructor: (@spec)->
 
         # Repeat initial value @N times
         @N = 1001
-        @hist = repRow(initVal, @N)
+        @hist = repRow(@spec.initVal, @N)
 
-        super scope
+        super @spec.scope
 
-        @obj.attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
+        @obj.attr('width', @spec.width)
+            .attr('height', @spec.height)
 
         @screen = @obj.append('g')
             .attr("id", "screen")
-            .attr('transform', "translate(#{margin.left}, #{margin.top})")
-            .attr('width', width)
-            .attr('height', height)
+            .attr('width', @spec.width)
+            .attr('height', @spec.height)
 
         @obj.append("linearGradient")
             .attr("id", "line-gradient")
             .attr("gradientUnits", "userSpaceOnUse")
-            .attr("x1", width).attr("y1", 0)
+            .attr("x1", @spec.width).attr("y1", 0)
             .attr("x2", 0).attr("y2", 0)
             .selectAll("stop").data([
                 {
@@ -332,7 +382,7 @@ class Scope extends d3Object
                 }
                 {
                     offset: "100%"
-                    color: color
+                    color: @spec.color
                 }
             ])
             .enter()
@@ -351,16 +401,22 @@ class Scope extends d3Object
             .append("path")
             .attr("d", @line)
             .attr("class", "trace")
+
+    draw: (val)->
+        @hist.unshift val
+        @hist = @hist[0...@hist.length-1]
+        @screen.selectAll('path.trace').attr("d", @line)
+
                                                                     
     initAxes: ->
         
         @y = d3.scale.linear()
-            .domain([-4, 4])
-            .range([0, height])
+            .domain([-@spec.yMin, @spec.yMax])
+            .range([0, @spec.height])
 
         @x = d3.scale.linear()
             .domain([0, @N-1])
-            .range([0, width])
+            .range([0, @spec.width])
 
         @xAxis = d3.svg.axis()
             .scale(@x)
@@ -385,8 +441,24 @@ class IntroSim
         @markerPoint.pos.x = @markerPoint.x 3
         @markerPoint.pos.y = @markerPoint.y -3
 
-        @scopeX = new Scope "x-scope", @markerPoint.pos.x, "green"
-        @scopeY = new Scope "y-scope", @markerPoint.pos.y, "blue"
+        specX =
+            scope : "x-scope"
+            initVal : @markerPoint.pos.x
+            color : "green"
+            yMin : -4
+            yMax : 4
+            width : Figure.width
+            height : Figure.height  
+        specY =
+            scope : "y-scope"
+            initVal: @markerPoint.pos.y
+            color : "red"
+            yMin : -4
+            yMax : 4
+            width : Figure.width
+            height : Figure.height  
+        @scopeX = new Scope specX
+        @scopeY = new Scope specY
 
         @persist = new Checkbox "persist" , (v) =>  @.checked = v
 
@@ -409,18 +481,13 @@ class IntroSim
         @canvas.clear() if not @.checked
         @vectorField.directParticles()
         @drawMarker()
-        @drawScope(@scopeX, @markerPoint.pos.x)
-        @drawScope(@scopeY, @markerPoint.pos.y)
+        @scopeX.draw @markerPoint.pos.x
+        @scopeY.draw @markerPoint.pos.y
 
     drawMarker: ->
         @markerPoint.move()
         @oscillator.moveMarker(@oscillator.marker0, @markerPoint.pos.x, @markerPoint.pos.y)
 
-    drawScope: (scope, val)->
-        (scope.hist).unshift val
-        scope.hist = scope.hist[0...(scope.hist).length-1]
-        scope.screen.selectAll('path.trace').attr("d", scope.line)
-        
     animate: ->
         @timer = setInterval (=> @snapshot()), 50
 
@@ -495,13 +562,30 @@ class SyncSim
     # Illustrate synchronization in rotating frame.
     
     constructor:  ->
+        @disturbance = new Disturbance "sync-oscillator"
 
-        @oscillator = new Oscillator "sync-oscillator"
-        @canvas = new Canvas "#sync-vector-field"
+        spec =
+            scope : "sync-scope"
+            initVal: 160
+            color : "green"
+            yMin : -4
+            yMax : 4
+            width : 320
+            height : 320  
+        @scope = new Scope spec
 
-        
-new IntroSim
-new DistSim
+
+        setTimeout (=> @animate() ), 2000
+
+    animate: ->
+        @timer = setInterval (=> @snapshot()), 20
+
+    snapshot: ->
+        @disturbance.move()
+        @scope.draw @disturbance.y
+
+#new IntroSim
+#new DistSim
 new SyncSim
 
 #d3.selectAll("#stop-button").on "click", ->

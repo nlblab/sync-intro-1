@@ -79,6 +79,14 @@ h2, .notes {
     border: 1px dashed green;
 }
 
+#sync-scope {
+    position: absolute;
+    top: 65px;
+    left: 225px;
+    background: transparent;
+    border: 1px dashed green;
+}
+
 .axis text {
   font: 10px sans-serif;
 }
@@ -140,7 +148,7 @@ h2, .notes {
 .trace {
   fill: none;
   stroke: url(#line-gradient);
-  stroke-width: 1.5px;
+  stroke-width: 0.5px;
   opacity: 1;
 }
 
