@@ -348,6 +348,14 @@ class Disturbance extends d3Object
             .attr("stroke", "red")
             .attr("fill", "red")
 
+        @markerSoln = @plot.append("circle")
+            .attr("id", "marker-solution")
+            .attr("r", 10)
+            .attr("cx", @xscale 0 )
+            .attr("cy", @yscale 4 )
+            .attr("stroke", "black")
+            .attr("fill", "black")
+
         @plot.append("circle")
             .attr("r", @xscale(0.5)-@xscale(0))
             .attr("cx", @xscale 0 )
@@ -363,16 +371,35 @@ class Disturbance extends d3Object
             .attr("fill", "transparent")
             .style("stroke-dasharray", ("10,3"))
 
+        @ticks = @plot.append("g")
+            .attr("id", "ticks")
+            .attr("transform", "translate(#{0},#{0})")
+
+        @ticks.selectAll("rect.tick")
+            .data(d3.range(24))
+            .enter()
+            .append("rect")
+            .attr("class", "tick")
+            .attr("x", 0)
+            .attr("y", 70)
+            .attr("width", 1)
+            .attr("height", (d, i) -> (if (i % 2) then 0 else 15*6))
+            .attr("transform", (d, i) =>
+                "translate(#{@xscale 0},#{@xscale 0}) rotate(#{i*15+150})"
+            )
+            .attr("fill", "steelblue")
 
     move: () ->
-        @phi += 0.1
+        @phi += 0.02
         @x = Math.cos(@phi)
         @y = Math.sin(@phi)
         
         @markerDist.attr("cy", @yscale @y)
         @markerEquiv1.attr("cx", @xscale @x/2).attr("cy", @yscale @y/2)
         @markerEquiv2.attr("cx", @xscale -@x/2).attr("cy", @yscale @y/2)
-        
+        @markerSoln.attr("cx", @xscale -@x*4).attr("cy", @yscale @y*4)
+
+        @ticks.attr("transform", "rotate(#{@phi*180/pi} #{@xscale(0)} #{@yscale(0)} )")
          
     initAxes: ->
         @xscale = d3.scale.linear()
