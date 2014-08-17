@@ -426,8 +426,8 @@ class Scope extends d3Object
     constructor: (@spec)->
 
         # Repeat initial value @N times
-        @N = 1001
-        @hist = repRow(@spec.initVal, @N)
+        #@N = 1001
+        @hist = repRow(@spec.initVal, @spec.N)
 
         super @spec.scope
 
@@ -465,7 +465,7 @@ class Scope extends d3Object
             .interpolate("basis")
                                            
         @screen.selectAll('path.trace')
-            .data([[0...@N]])
+            .data([[0...@spec.N]])
             .enter()
             .append("path")
             .attr("d", @line)
@@ -489,7 +489,7 @@ class Scope extends d3Object
             .range([0, @spec.height])
 
         @x = d3.scale.linear()
-            .domain([0, @N-1])
+            .domain([0, @spec.N-1])
             .range([0, @spec.width])
 
         @xAxis = d3.svg.axis()
@@ -522,7 +522,8 @@ class IntroSim
             yMin : -4
             yMax : 4
             width : Figure.width
-            height : Figure.height  
+            height : Figure.height
+            N: 1001
         specY =
             scope : "y-scope"
             initVal: @markerPoint.pos.y
@@ -530,7 +531,8 @@ class IntroSim
             yMin : -4
             yMax : 4
             width : Figure.width
-            height : Figure.height  
+            height : Figure.height
+            N: 1001
         @scopeX = new Scope specX
         @scopeY = new Scope specY
 
@@ -645,7 +647,8 @@ class SyncSim
             yMin : -4
             yMax : 4
             width : 320
-            height : 320  
+            height : 320
+            N: 101  
         @scope = new Scope spec
 
         new Checkbox "trace" , (v) =>  @scope.show(v)
@@ -653,11 +656,15 @@ class SyncSim
         setTimeout (=> @animate() ), 2000
 
     animate: ->
-        @timer = setInterval (=> @snapshot()), 20
+        @timer1 = setInterval (=> @snapshot1()), 20
+        @timer2 = setInterval (=> @snapshot2()), 50
 
-    snapshot: ->
+    snapshot1: ->
         @disturbance.move()
+
+    snapshot2: ->
         @scope.draw(@disturbance.yscale @disturbance.mag)
+
 
 #new IntroSim
 #new DistSim
