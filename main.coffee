@@ -370,6 +370,7 @@ class Disturbance extends d3Object
             .attr("stroke", "black")
             .attr("fill", "transparent")
             .style("stroke-dasharray", ("10,3"))
+            .attr("visibility", "hidden")
 
         @ticks = @plot.append("g")
             .attr("id", "ticks")
@@ -464,10 +465,17 @@ class Scope extends d3Object
             .attr("d", @line)
             .attr("class", "trace")
 
-    draw: (val)->
+    draw: (val) ->
         @hist.unshift val
         @hist = @hist[0...@hist.length-1]
         @screen.selectAll('path.trace').attr("d", @line)
+
+    show: (bit) ->
+        if bit
+            @obj.attr("visibility", "visible")
+        else
+            @obj.attr("visibility", "hidden")
+                
 
                                                                     
     initAxes: ->
@@ -636,6 +644,7 @@ class SyncSim
             height : 320  
         @scope = new Scope spec
 
+        new Checkbox "trace" , (v) =>  @scope.show(v)
 
         setTimeout (=> @animate() ), 2000
 
