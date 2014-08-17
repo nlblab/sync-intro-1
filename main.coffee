@@ -273,6 +273,7 @@ class Oscillator extends d3Object
             marker.attr("cx", u)
             marker.attr("cy", v)
 
+    # !!! duplicated.
     moveMarker: (marker, u, v) ->
             marker.attr("cx", u)
             marker.attr("cy", v)
@@ -301,11 +302,15 @@ class Disturbance extends d3Object
     margin = Figure.margin
     width = Figure.width
     height = Figure.height
+    n = 0
+    phi = 0
 
     constructor: (X) ->
         super X 
 
-        @phi = 0
+        @omega = 0.02
+        @omegaR = 0
+        #@phi = 0
 
         # Clear any previous event handlers.
         @obj.on("click", null)  
@@ -391,16 +396,17 @@ class Disturbance extends d3Object
             .attr("fill", "steelblue")
 
     move: () ->
-        @phi += 0.02
-        @x = Math.cos(@phi)
-        @y = Math.sin(@phi)
+        phiP = (@omega+@omegaR)*n*180/pi
+        phiM = (@omega-@omegaR)*n*180/pi
+        n += 1
+        @mag = Math.sin(phiM*pi/180)
         
-        @markerDist.attr("cy", @yscale @y)
-        @markerEquiv1.attr("cx", @xscale @x/2).attr("cy", @yscale @y/2)
-        @markerEquiv2.attr("cx", @xscale -@x/2).attr("cy", @yscale @y/2)
-        @markerSoln.attr("cx", @xscale -@x*4).attr("cy", @yscale @y*4)
-
-        @ticks.attr("transform", "rotate(#{@phi*180/pi} #{@xscale(0)} #{@yscale(0)} )")
+        @markerDist.attr("cy", @yscale @mag)
+        center = "#{@xscale(0)} #{@yscale(0)}"
+        @markerEquiv1.attr("transform", "rotate(#{-phiP+90} #{center} )")
+        @markerEquiv2.attr("transform", "rotate(#{phiM-90} #{center} )")
+        @markerSoln.attr("transform", "rotate(#{phiM-90} #{center} )")
+        @ticks.attr("transform", "rotate(#{phiM} #{center} )")
          
     initAxes: ->
         @xscale = d3.scale.linear()
@@ -475,8 +481,6 @@ class Scope extends d3Object
             @obj.attr("visibility", "visible")
         else
             @obj.attr("visibility", "hidden")
-                
-
                                                                     
     initAxes: ->
         
@@ -653,7 +657,7 @@ class SyncSim
 
     snapshot: ->
         @disturbance.move()
-        @scope.draw(@disturbance.yscale @disturbance.y)
+        @scope.draw(@disturbance.yscale @disturbance.mag)
 
 #new IntroSim
 #new DistSim
