@@ -14,6 +14,9 @@ pi = Math.PI
 sin = Math.sin
 cos = Math.cos
 min = Math.min
+COS = (u) -> Math.cos(u*pi/180)
+SIN = (u) -> Math.sin(u*pi/180)
+
 repRow = (val, m) -> val for [1..m]
 
 {rk, ode} = $blab.ode # Import ODE solver
@@ -303,14 +306,16 @@ class Disturbance extends d3Object
     width = Figure.width
     height = Figure.height
     n = 0
-    phi = 0
+    phiP = 0
+    phiM = 0
+    omega = 1 # degree/step
+    omegaP = 0
+    omegaM = 0
 
     constructor: (X) ->
         super X 
 
-        @omega = 0.02
-        @omegaR = 0
-        #@phi = 0
+        @spin = 0
 
         # Clear any previous event handlers.
         @obj.on("click", null)  
@@ -319,6 +324,19 @@ class Disturbance extends d3Object
         @obj.attr("width", width + margin.left + margin.right)
         @obj.attr("height", height + margin.top + margin.bottom)
         @obj.attr("id", "disturbance")
+
+        @obj.append("svg:defs")
+            .append("svg:marker")
+            .attr("id", "arrow")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 10)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("svg:path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .style("stroke","ccc")
 
         @obj.append("g")
             .attr("class", "axis")
@@ -329,29 +347,11 @@ class Disturbance extends d3Object
             .attr("id", "plot")
             .attr("transform", "translate(#{margin.left},#{margin.top})")
 
-        @markerDist = @plot.append("circle")
-            .attr("id", "marker-disturbance")
-            .attr("r", 5)
-            .attr("cx", @xscale 0 )
-            .attr("cy", @yscale 0 )
-            .attr("stroke", "green")
-            .attr("fill", "green")
-
-        @markerEquiv1 = @plot.append("circle")
-            .attr("id", "marker-equiv-1")
-            .attr("r", 5)
-            .attr("cx", @xscale 0 )
-            .attr("cy", @yscale 0.5 )
-            .attr("stroke", "red")
-            .attr("fill", "red")
-
-        @markerEquiv2 = @plot.append("circle")
-            .attr("id", "marker-equiv-2")
-            .attr("r", 5)
-            .attr("cx", @xscale 0 )
-            .attr("cy", @yscale 0.5 )
-            .attr("stroke", "red")
-            .attr("fill", "red")
+        @markerDistInner = @vector @plot, 0, 1.5
+        @markerDistOuter = @vector @plot, 0, 1.5
+        
+        @markerEquiv1 = @vector @plot, 0, 0.75
+        @markerEquiv2 = @vector @plot, 0, 0.75
 
         @markerSoln = @plot.append("circle")
             .attr("id", "marker-solution")
@@ -359,13 +359,13 @@ class Disturbance extends d3Object
             .attr("cx", @xscale 0 )
             .attr("cy", @yscale 4 )
             .attr("stroke", "black")
-            .attr("fill", "black")
+            .attr("fill", "transparent")
 
         @plot.append("circle")
-            .attr("r", @xscale(0.5)-@xscale(0))
+            .attr("r", @xscale(0.75)-@xscale(0))
             .attr("cx", @xscale 0 )
             .attr("cy", @yscale 0 )
-            .attr("stroke", "red")
+            .attr("stroke", "black")
             .attr("fill", "transparent")
 
         @plot.append("circle")
@@ -375,7 +375,7 @@ class Disturbance extends d3Object
             .attr("stroke", "black")
             .attr("fill", "transparent")
             .style("stroke-dasharray", ("10,3"))
-            .attr("visibility", "hidden")
+            .attr("visibility", "visible")
 
         @ticks = @plot.append("g")
             .attr("id", "ticks")
@@ -395,13 +395,40 @@ class Disturbance extends d3Object
             )
             .attr("fill", "steelblue")
 
+        @rotate(false)
+
+
+    vector: (U, x, y) ->
+
+        U.append('line')
+            .attr("marker-end", "url(#arrow)")
+            .attr("x1", @xscale 0).attr("y1", @yscale x)
+            .attr("x2", @xscale 0).attr("y2", @yscale y)
+            .attr('id','weightGuideDim')
+            .style("stroke","black")
+            .style("stroke-width","1")
+
+    rotate: (spin) ->
+
+        if spin
+            omegaP = 2*omega
+            omegaM = 0
+        else
+            omegaP = omega
+            omegaM = omega
+            phiP = 0
+            phiM = 0
+
     move: () ->
-        phiP = (@omega+@omegaR)*n*180/pi
-        phiM = (@omega-@omegaR)*n*180/pi
-        n += 1
-        @mag = Math.sin(phiM*pi/180)
+        phiP += omegaP # degrees
+        phiM += omegaM
+
+        @mag = 1.5*Math.sin(phiM*pi/180)
         
-        @markerDist.attr("cy", @yscale @mag)
+        @markerDistInner.attr("y2", @yscale @mag)
+        @markerDistOuter
+            .attr("x1", @xscale -4*COS(phiM)).attr("y1", @yscale 4*SIN(phiM))
+            .attr("x2", @xscale -4*COS(phiM)).attr("y2", @yscale 4*SIN(phiM)+@mag)
         center = "#{@xscale(0)} #{@yscale(0)}"
         @markerEquiv1.attr("transform", "rotate(#{-phiP+90} #{center} )")
         @markerEquiv2.attr("transform", "rotate(#{phiM-90} #{center} )")
@@ -424,10 +451,8 @@ class Disturbance extends d3Object
 class Scope extends d3Object
 
     constructor: (@spec)->
-
-        # Repeat initial value @N times
-        #@N = 1001
-        @hist = repRow(@spec.initVal, @spec.N)
+        
+        @hist = repRow(@spec.initVal, @spec.N) # Repeat initial
 
         super @spec.scope
 
@@ -445,14 +470,11 @@ class Scope extends d3Object
             .attr("x1", @spec.width).attr("y1", 0)
             .attr("x2", 0).attr("y2", 0)
             .selectAll("stop").data([
-                {
                     offset: "0%"
                     color: "white"
-                }
-                {
+            ,
                     offset: "100%"
                     color: @spec.color
-                }
             ])
             .enter()
             .append("stop")
@@ -652,6 +674,7 @@ class SyncSim
         @scope = new Scope spec
 
         new Checkbox "trace" , (v) =>  @scope.show(v)
+        new Checkbox "spin" , (v) =>  @disturbance.rotate(v)
 
         setTimeout (=> @animate() ), 2000
 
