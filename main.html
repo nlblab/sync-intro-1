@@ -48,14 +48,35 @@
 
   <div class="clear"></div>
 
-  <div id="intro-container" class="container">
-    <canvas id="intro-vector-field" class="vector-field"></canvas>
-    <div id="intro-oscillator"></div>
+  <div id="vdp-box" class="container">
+    <h3 style="text-align:center;">Van der Pol Oscillator</h3>
+    <div class="box-text">
+      The [http://en.wikipedia.org/wiki/Van_der_Pol_oscillator,Van der Pol oscillator]
+      is just complex enough to be a [http://en.wikipedia.org/wiki/Toy_problem,toy problem]
+      for synchronization:
+      $$
+      \frac{d^2x}{dt^2}-\mu \left(1-x^2 \right) \frac{dx}{dt} + x = 0 
+      $$
+      If we set one state to be $x$ and the other $y=dx/dt$ we find the state behavior shown
+      on the lower left (states as a function of time appear on the lower right). 
+      The phase-space is illustrated by the colored dots, which show 
+      the trajectory of random initial states for a finite time. The black dot shows a 
+      single initial condition that has become trapped on the limit-cycle.
 
-    <div id="checkboxes" class="canvas-text">
+      The slider controls $\mu$, the nonlinearity---$\mu=0$ corresponds to simple harmonic
+      motion (without a limit cycle), and large $\mu$ tends towards a 
+      [http://en.wikipedia.org/wiki/Relaxation_oscillator, relaxation oscillator].
+      To study synchronization its easiest to consider quasi-linear operation with
+      $\mu<1$ --- where the limit cycle tends towards the grey circle.
+      
+    </div>
+    <canvas id="intro-vector-field" class="vector-field"></canvas>
+   <div id="intro-oscillator"></div>
+
+    <div id="intro-checkboxes" class="canvas-text">
       <input type="checkbox" id="persist" value="showSunPhotons">Persistence</input>
     </div>
-    <div id="sliders">
+    <div id="intro-sliders">
       <div id="mu-value"></div>
       <input type="range" id="mu-slider" step="0.1" min="0" max="5" value="1">
     </div>

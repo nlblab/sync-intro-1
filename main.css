@@ -10,6 +10,14 @@ h2, .notes {
     margin-bottom: 0px;
 }
 
+.box-text {
+    width: 800px;
+    margin: 0 auto;
+    margin-bottom: 0px;
+    border: 2px solid #ccc;
+}
+
+
 .left_col {
     float: left;
     width: 450px;
@@ -26,7 +34,6 @@ h2, .notes {
 
 .container {
     position: relative;
-    height: 450px;
     margin: 0 auto;
     top: 10px;
     z-index: 10;
@@ -34,12 +41,14 @@ h2, .notes {
     border: 2px solid #ccc;
 }
 
-#intro-container {
+#vdp-box {
     width: 900px;
+    height: 900px;
 }
 
 #dist-container {
     width: 450px;
+    height: 450px;
 }
 
 #sync-container {
@@ -47,17 +56,17 @@ h2, .notes {
 }
 
 .vector-field {
+    bottom: 65px;
+    left: 65px;
     position: absolute;
-    #top: 65px;
-    #left: 65px;
     background-color: transparent;
     border: 1px dashed blue;
     border-radius: 10px;
 }
       
-#oscillator {
+#intro-oscillator {
     position: absolute;
-    top: 0px;
+    bottom: 0px;
     left: 0px;
     background: transparent;
     border: 1px dashed red;
@@ -65,16 +74,16 @@ h2, .notes {
 
 #x-scope {
     position: absolute;
-    top: 65px;
-    right: 65px;
+    bottom: 0px;
+    right: 0px;
     background: transparent;
     border: 1px dashed green;
 }
 
 #y-scope {
     position: absolute;
-    top: 65px;
-    right: 65px;
+    bottom: 0px;
+    right: 0px;
     background: transparent;
     border: 1px dashed green;
 }
@@ -98,9 +107,9 @@ h2, .notes {
   shape-rendering: crispEdges;
 }
 
-#checkboxes {
+#intro-checkboxes {
     position: absolute;
-    top: 10px;
+    bottom: 440px;
     left: 20px;
     width: 200px;
     height: 100px;
@@ -108,9 +117,9 @@ h2, .notes {
     border: 1px dashed gray;
 }
 
-#sliders {
+#intro-sliders {
     position: absolute;
-    top: 10px;
+    bottom: 440px;
     right: 20px;
     width: 200px;
     height: 100px;
@@ -121,7 +130,7 @@ h2, .notes {
 
 #x-label {
     position: absolute;
-    top: 420px;
+    bottom: 30px;
     left: 219px;
     width: 20px;
     height: 20px;
@@ -131,7 +140,7 @@ h2, .notes {
 
 #y-label {
     position: absolute;
-    top: 218px;
+    bottom: 230px;
     left: 20px;
     width: 20px;
     height: 20px;

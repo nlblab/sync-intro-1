@@ -78,7 +78,7 @@ class Canvas
     constructor: (id) ->
 
         @canvas = $(id) 
-        @canvas.css("left","#{margin.left}px").css("top","#{margin.top}px")
+        #@canvas.css("left","#{margin.left}px").css("top","#{margin.top}px")
         @canvas[0].width = width
         @canvas[0].height = height
         @ctx = @canvas[0].getContext('2d')
@@ -450,41 +450,61 @@ class Disturbance extends d3Object
 
 class Scope extends d3Object
 
+    margin = Figure.margin
+    width = Figure.width
+    height = Figure.height
+    
     constructor: (@spec)->
         
         @hist = repRow(@spec.initVal, @spec.N) # Repeat initial
 
         super @spec.scope
 
-        @obj.attr('width', @spec.width)
-            .attr('height', @spec.height)
+        #@obj.attr('width', width)
+        #    .attr('height', height)
+        @obj.attr("width", width + margin.left + margin.right)
+        @obj.attr("height", height + margin.top + margin.bottom)
+        @obj.attr("id", "oscillator")
+
+        @obj.append("g")
+            .attr("class", "axis")
+            .attr("transform","translate(#{0}, #{0})")
+            .call(@yAxis) 
 
         @screen = @obj.append('g')
             .attr("id", "screen")
-            .attr('width', @spec.width)
-            .attr('height', @spec.height)
+            .attr('width', width)
+            .attr('height', height)
+            .attr("transform","translate(#{margin.left}, #{margin.top})")
 
-        @obj.append("linearGradient")
-            .attr("id", "line-gradient")
-            .attr("gradientUnits", "userSpaceOnUse")
-            .attr("x1", @spec.width).attr("y1", 0)
-            .attr("x2", 0).attr("y2", 0)
-            .selectAll("stop").data([
-                    offset: "0%"
-                    color: "white"
-            ,
-                    offset: "100%"
-                    color: @spec.color
-            ])
-            .enter()
-            .append("stop")
-            .attr("offset", (d) -> d.offset )
-            .attr("stop-color", (d) -> d.color)
+        gradient = @obj.append("svg:defs") # https://gist.github.com/mbostock/1086421
+            .append("svg:linearGradient")
+            .attr("id", "gradient")
+            .attr("x1", "100%")
+            .attr("y1", "100%")
+            .attr("x2", "0%")
+            .attr("y2", "100%")
+            .attr("spreadMethod", "pad");
+
+        gradient.append("svg:stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "white")
+            .attr("stop-opacity", 1);
+
+        gradient.append("svg:stop")
+            .attr("offset", "100%")
+            .attr("stop-color", @spec.color)
+            .attr("stop-opacity", 1);
 
         @line = d3.svg.line()
             .x((d) =>  @x(d))
             .y((d,i) =>  @hist[i])
             .interpolate("basis")
+
+        if @spec.fade
+            strokeSpec = "url(#gradient)"
+        else
+            strokeSpec = @spec.color    
                                            
         @screen.selectAll('path.trace')
             .data([[0...@spec.N]])
@@ -492,6 +512,8 @@ class Scope extends d3Object
             .append("path")
             .attr("d", @line)
             .attr("class", "trace")
+            .style("stroke", strokeSpec)
+            .style("stroke-width", 2)
 
     draw: (val) ->
         @hist.unshift val
@@ -508,11 +530,11 @@ class Scope extends d3Object
         
         @y = d3.scale.linear()
             .domain([-@spec.yMin, @spec.yMax])
-            .range([0, @spec.height])
+            .range([0, height])
 
         @x = d3.scale.linear()
             .domain([0, @spec.N-1])
-            .range([0, @spec.width])
+            .range([0, width])
 
         @xAxis = d3.svg.axis()
             .scale(@x)
@@ -545,7 +567,8 @@ class IntroSim
             yMax : 4
             width : Figure.width
             height : Figure.height
-            N: 1001
+            N: 255
+            fade: 0
         specY =
             scope : "y-scope"
             initVal: @markerPoint.pos.y
@@ -554,7 +577,8 @@ class IntroSim
             yMax : 4
             width : Figure.width
             height : Figure.height
-            N: 1001
+            N: 255
+            fade: 0
         @scopeX = new Scope specX
         @scopeY = new Scope specY
 
@@ -575,10 +599,12 @@ class IntroSim
         @vectorField.updateMu() 
         d3.select("#mu-value").html(k)
         
-    snapshot: ->
+    snapshot1: ->
         @canvas.clear() if not @.checked
         @vectorField.directParticles()
         @drawMarker()
+
+    snapshot2: ->
         @scopeX.draw @markerPoint.pos.x
         @scopeY.draw @markerPoint.pos.y
 
@@ -587,11 +613,14 @@ class IntroSim
         @oscillator.moveMarker(@oscillator.marker0, @markerPoint.pos.x, @markerPoint.pos.y)
 
     animate: ->
-        @timer = setInterval (=> @snapshot()), 50
+        @timer1 = setInterval (=> @snapshot1()), 20
+        @timer2 = setInterval (=> @snapshot2()), 50
 
     stop: ->
-        clearInterval @timer
-        @timer = null
+        clearInterval @timer1
+        clearInterval @timer2
+        @timer1 = null
+        @timer2 = null
 
     start: ->
         setTimeout (=> @animate() ), 20
@@ -670,7 +699,8 @@ class SyncSim
             yMax : 4
             width : 320
             height : 320
-            N: 101  
+            N: 101
+            fade: 1  
         @scope = new Scope spec
 
         new Checkbox "trace" , (v) =>  @scope.show(v)
@@ -690,8 +720,8 @@ class SyncSim
 
 
 new IntroSim
-#new DistSim
-#new SyncSim
+new DistSim
+new SyncSim
 
 #d3.selectAll("#stop-button").on "click", ->
 #    distSim.stop()
