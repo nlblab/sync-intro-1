@@ -248,38 +248,49 @@ class Oscillator extends d3Object
             .style("fill", "transparent")
             .style("stroke", "ccc")
 
-        @marker0 = @plot.append("circle")
-            .attr("r", 5)
-            .style("fill", "black")
-            .style("stroke", "000")
-            .style("stroke-width", "1")
-            .call(
-                d3.behavior
-                .drag()
-                .origin(()=>{x:@marker0.attr("cx"), y:@marker0.attr("cy")})
-                .on("drag", => @dragMarker(@marker0, d3.event.x, d3.event.y))
-            )
-     
-        @marker1 = @plot.append("circle")
+        @marker0 = @marker("black")
+        @marker1 = @marker("red")
+        
+        @guide0 = @radialLine()
+        @guide1 = @radialLine()
+
+
+    marker: (color) ->
+        m = @plot.append("circle")
             .attr("r",10)
-            .style("fill","red")
-            .style("stroke","000")
+            .style("fill", color)
+            .style("stroke", color)
             .style("stroke-width","1")
             .call(
                 d3.behavior
                 .drag()
-                .origin(()=>{x:@marker1.attr("cx"), y:@marker1.attr("cy")})
-                .on("drag", => @dragMarker(@marker1, d3.event.x, d3.event.y))
+                .origin(=>
+                    x:m.attr("cx")
+                    y:m.attr("cy")
+                )
+                .on("drag", => @dragMarker(m, d3.event.x, d3.event.y))
             )
 
+        
+    radialLine: ->
+        @plot.append('line')
+            .attr("x1", @xscale 0)
+            .attr("y1", @yscale 0)
+            .style("stroke","ccc")
+            .style("stroke-width","1")
+        
     dragMarker: (marker, u, v) ->
-            marker.attr("cx", u)
-            marker.attr("cy", v)
+        marker.attr("cx", u)
+        marker.attr("cy", v)
 
     # !!! duplicated.
     moveMarker: (marker, u, v) ->
-            marker.attr("cx", u)
-            marker.attr("cy", v)
+        marker.attr("cx", u)
+        marker.attr("cy", v)
+
+    moveGuide: (guide, u, v) ->
+        guide.attr("x2", u)
+        guide.attr("y2", v)
          
     initAxes: ->
 
@@ -663,6 +674,8 @@ class DistSim
         @point1.move()
         @oscillator.moveMarker(@oscillator.marker0, @point0.pos.x, @point0.pos.y)
         @oscillator.moveMarker(@oscillator.marker1, @point1.pos.x, @point1.pos.y)
+        @oscillator.moveGuide(@oscillator.guide0, @point0.pos.x, @point0.pos.y)
+        @oscillator.moveGuide(@oscillator.guide1, @point1.pos.x, @point1.pos.y)
 
     animate: ->
         @timer = setInterval (=> @snapshot()), 20
@@ -720,7 +733,7 @@ class SyncSim
 
 
 #new IntroSim
-#new DistSim
+new DistSim
 #new SyncSim
 
 #d3.selectAll("#stop-button").on "click", ->
