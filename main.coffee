@@ -719,9 +719,9 @@ class SyncSim
         @scope.draw(@disturbance.yscale @disturbance.mag)
 
 
-new IntroSim
-new DistSim
-new SyncSim
+#new IntroSim
+#new DistSim
+#new SyncSim
 
 #d3.selectAll("#stop-button").on "click", ->
 #    distSim.stop()
