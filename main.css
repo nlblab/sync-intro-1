@@ -56,9 +56,9 @@ h2, .notes {
 }
 
 .vector-field {
+    position: absolute;
     bottom: 65px;
     left: 65px;
-    position: absolute;
     background-color: transparent;
     border: 1px dashed blue;
     border-radius: 10px;
@@ -71,6 +71,15 @@ h2, .notes {
     background: transparent;
     border: 1px dashed red;
 }
+
+#dist-oscillator {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    background: transparent;
+    border: 1px dashed red;
+}
+
 
 #x-scope {
     position: absolute;

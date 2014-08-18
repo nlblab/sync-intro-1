@@ -107,22 +107,22 @@ class vfPoint # vector field point
 
     scales: ->
         
-        @x = d3.scale.linear()
+        @xScale = d3.scale.linear()
             .domain([-Figure.xMax, Figure.xMax])
             .range([0, width])
-        @y = d3.scale.linear()
+        @yScale = d3.scale.linear()
             .domain([-Figure.yMax, Figure.yMax])
             .range([height, 0])
 
     update: ->
         # VF coords
-        @vf.x = @x.invert @pos.x
-        @vf.y = @y.invert @pos.y
+        @vf.x = @xScale.invert @pos.x
+        @vf.y = @yScale.invert @pos.y
         
         # Velocity (screen units)
         vel = f(0, [@vf.x, @vf.y], @mu)
-        @vel.x = @x.invert vel[0]
-        @vel.y = @y.invert vel[1]
+        @vel.x = @xScale.invert vel[0]
+        @vel.y = @yScale.invert vel[1]
 
     draw: ->
 
@@ -133,8 +133,8 @@ class vfPoint # vector field point
         # Runge Kutta step
         w = ode(rk[1], f, [0, 0.02], [@vf.x, @vf.y], @mu)[1]
         # map VF coords to screen coords
-        @pos.x = @x w[0]
-        @pos.y = @y w[1]
+        @pos.x = @xScale w[0]
+        @pos.y = @yScale w[1]
         
         # accumulate distance (screen units)
         @d += @vel.mag()
@@ -248,14 +248,13 @@ class Oscillator extends d3Object
             .style("fill", "transparent")
             .style("stroke", "ccc")
 
-        @marker0 = @marker("black")
-        @marker1 = @marker("red")
-        
         @guide0 = @radialLine()
         @guide1 = @radialLine()
 
-
-    marker: (color) ->
+        @marker0 = @marker("black", @guide0)
+        @marker1 = @marker("red", @guide1)
+        
+    marker: (color, guide) ->
         m = @plot.append("circle")
             .attr("r",10)
             .style("fill", color)
@@ -268,29 +267,30 @@ class Oscillator extends d3Object
                     x:m.attr("cx")
                     y:m.attr("cy")
                 )
-                .on("drag", => @dragMarker(m, d3.event.x, d3.event.y))
+                .on("drag", => @dragMarker(m, d3.event.x, d3.event.y, guide))
             )
-
         
     radialLine: ->
         @plot.append('line')
             .attr("x1", @xscale 0)
             .attr("y1", @yscale 0)
-            .style("stroke","ccc")
+            .style("stroke","000")
             .style("stroke-width","1")
         
-    dragMarker: (marker, u, v) ->
+    dragMarker: (marker, u, v, guide) ->
         marker.attr("cx", u)
         marker.attr("cy", v)
+        phi = Math.atan2(@yscale.invert(v), @xscale.invert(u))
+        guide.attr("x2", @xscale Figure.xMax*cos(phi))
+        guide.attr("y2", @yscale Figure.xMax*sin(phi))
 
-    # !!! duplicated.
     moveMarker: (marker, u, v) ->
         marker.attr("cx", u)
         marker.attr("cy", v)
 
-    moveGuide: (guide, u, v) ->
-        guide.attr("x2", u)
-        guide.attr("y2", v)
+    moveGuide: (guide, phi) ->
+        guide.attr("x2", @xscale Figure.xMax*cos(phi))
+        guide.attr("y2", @yscale Figure.yMax*sin(phi))
          
     initAxes: ->
 
@@ -658,8 +658,8 @@ class DistSim
 
     initPointMarker: (point, u, v, marker) ->
         # initialize vector field point at (u,v) and sync marker
-        point.pos.x = point.x u # convert to screen units
-        point.pos.y = point.y v
+        point.pos.x = point.xScale u # convert to screen units
+        point.pos.y = point.yScale v
         point.mu = 0.1
         marker.attr("cx", point.pos.x)
         marker.attr("cy", point.pos.y)
@@ -674,8 +674,8 @@ class DistSim
         @point1.move()
         @oscillator.moveMarker(@oscillator.marker0, @point0.pos.x, @point0.pos.y)
         @oscillator.moveMarker(@oscillator.marker1, @point1.pos.x, @point1.pos.y)
-        @oscillator.moveGuide(@oscillator.guide0, @point0.pos.x, @point0.pos.y)
-        @oscillator.moveGuide(@oscillator.guide1, @point1.pos.x, @point1.pos.y)
+        @oscillator.moveGuide(@oscillator.guide0, Math.atan2(@point0.vf.y, @point0.vf.x))
+        @oscillator.moveGuide(@oscillator.guide1, Math.atan2(@point1.vf.y, @point1.vf.x))
 
     animate: ->
         @timer = setInterval (=> @snapshot()), 20
