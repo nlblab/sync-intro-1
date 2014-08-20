@@ -16,6 +16,7 @@ cos = Math.cos
 min = Math.min
 COS = (u) -> Math.cos(u*pi/180)
 SIN = (u) -> Math.sin(u*pi/180)
+R2 = Math.sqrt(2)
 
 repRow = (val, m) -> val for [1..m]
 
@@ -198,17 +199,17 @@ class Oscillator extends d3Object
         @obj.attr("height", height + margin.top + margin.bottom)
         @obj.attr("id", "oscillator")
 
-        @obj.append("g")
+        @obj.append("g") # x axis
             .attr("class", "axis")
             .attr("transform", "translate(#{margin.left}, #{margin.top+height+10})")
             .call(@xAxis) 
 
-        @obj.append("g")
+        @obj.append("g") # y axis
             .attr("class", "axis")
             .attr("transform","translate(#{margin.left-10}, #{margin.top})")
             .call(@yAxis) 
 
-        @plot = @obj.append("g")
+        @plot = @obj.append("g") # Plot area
             .attr("id", "plot")
             .attr("transform", "translate(#{margin.left},#{margin.top})")
 
@@ -606,13 +607,13 @@ class DistSim
 
         @oscillator = new Oscillator "dist-oscillator"
         @canvas = new Canvas "#dist-vector-field"
-        @point0 = new vfPoint @u0, @v0, 0.05
-        @point1 = new vfPoint @u1, @v1, 0.05
+        @point0 = new vfPoint @u0, @v0, 0.1
+        @point1 = new vfPoint @u1, @v1, 0.1
         @update()
 
         d3.selectAll("#dist-stop-button").on "click", => @stop()
         d3.selectAll("#dist-start-button").on "click", => @start()
-        d3.selectAll("#dist-scenario-1").on "click", => @restart({x:1, y:1},{x:1, y:-1})
+        d3.selectAll("#dist-scenario-1").on "click", => @restart({x:2.2/R2, y:2.19/R2},{x:1, y:0})
 
         setTimeout (=> @start() ), 2000
 
@@ -646,8 +647,8 @@ class DistSim
         @guideUpdate(@point0, @oscillator.guide0)
         @guideUpdate(@point1, @oscillator.guide1)
 
-        @canvas.square {x:@oscillator.xscale(@point0.x), y:@oscillator.yscale(@point0.y)}, 2, "black"
-        @canvas.square {x:@oscillator.xscale(@point1.x), y:@oscillator.yscale(@point1.y)}, 2, "red"
+        @canvas.square {x:Figure.xscale(@point0.x), y:Figure.yscale(@point0.y)}, 2, "black"
+        @canvas.square {x:Figure.xscale(@point1.x), y:Figure.yscale(@point1.y)}, 2, "red"
 
     animate: ->
         @timer = setInterval (=> @snapshot()), 20
@@ -658,10 +659,10 @@ class DistSim
 
     start: ->
         # Update vector field points (marker may have been dragged).
-        @point0.x = @oscillator.xscale.invert @oscillator.marker0.attr("cx")
-        @point0.y = @oscillator.yscale.invert @oscillator.marker0.attr("cy")
-        @point1.x = @oscillator.xscale.invert @oscillator.marker1.attr("cx")
-        @point1.y = @oscillator.yscale.invert @oscillator.marker1.attr("cy")
+        @point0.x = Figure.xscale.invert @oscillator.marker0.attr("cx")
+        @point0.y = Figure.yscale.invert @oscillator.marker0.attr("cy")
+        @point1.x = Figure.xscale.invert @oscillator.marker1.attr("cx")
+        @point1.y = Figure.yscale.invert @oscillator.marker1.attr("cy")
 
         @canvas.clear()
         

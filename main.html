@@ -1,4 +1,4 @@
-<link href="http://fonts.googleapis.com/css?family=Reenie+Beanie" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Reenie+Beanie" rel="stylesheet" type="text/css"></link>
 
 <div id="text">
 
@@ -8,7 +8,7 @@
   <span id="intro-start-button" class="text-button">click to start</span>
 
   <div class="left_col">
-
+    
     Examples of synchronization are found throughout science and engineering X. 
     Synchronization of cicada (biology X) and clocks (physics X) and clapping
     (psycology X) are well known. In mobile phones, the synchronization of a
@@ -17,7 +17,7 @@
     quite possible to quicky appreciate its broad ideas with an intuitive grasp of
     dynamic systems (limit cycles in particular). Here we follow the first part 
     of [X], "Synchronization without formulae". 
-
+    
     The question (as ever) is what do such differing examples of synchronization
     (from physics, engineering, biology, psycology, ...) have in common? That is, 
     what are the *universal* properties of synchronization that do not depend on 
@@ -42,7 +42,6 @@
     initial condition we end up with a stable, periodic oscillation. Furthermore,
     because each state is periodic, if we plot one against the other in a
     phase plane we see a limit cycle.
-
  
   </div>
 
@@ -68,17 +67,19 @@
       [http://en.wikipedia.org/wiki/Relaxation_oscillator, relaxation oscillator].
       To study synchronization its easiest to consider quasi-linear operation with
       $\mu<1$ --- where the limit cycle tends towards the grey circle.
-      
+	      </div>
+
+    <div id="intro-fig">
+      <canvas id="intro-vector-field" class="vector-field"></canvas>
+      <div id="intro-oscillator"></div>
     </div>
-    <canvas id="intro-vector-field" class="vector-field"></canvas>
-   <div id="intro-oscillator"></div>
 
     <div id="intro-checkboxes" class="canvas-text">
       <input type="checkbox" id="persist" value="showSunPhotons">Persistence</input>
     </div>
     <div id="intro-sliders">
       <div id="mu-value"></div>
-      <input type="range" id="mu-slider" step="0.1" min="0" max="5" value="1">
+      <input type="range" id="mu-slider" step="0.1" min="0" max="5" value="1">???</input>
     </div>
 
     <div id="x-label">$x$</div>
@@ -111,7 +112,19 @@
 
   <div class="left_col">
     <h3>Disturbances</h3>
-    <span id="dist-scenario-1" class="text-button">scenario-1</span>
+    The oscillator on the right is quasi-linear ($\mu=0.05$). The red and black
+    markers show the evolution of two initial conditions. You can 
+    <span id="dist-stop-button" class="text-button">stop</span> the simulation 
+    at any time, reposition the markers, then 
+    <span id="dist-start-button" class="text-button">restart</span>.
+
+    To understand the effect of a disturbance on the oscillator it is instructive
+    to consider black marker as the nominal solution, and the red marker  as the 
+    perturbed solution (as if knocked off-course by an impulse). For examaple, say 
+    the nominal (black) solution is on the limit cycle, and the perturbation
+    reduces the amplitude by half and increases the phase by 45 degrees.
+    <span id="dist-scenario-1" class="text-button">click to try</span>.
+
   </div>
 
   <div class="right_col">
@@ -121,8 +134,8 @@
       <div id="x-label">$x$</div>
       <div id="y-label">$y$</div>
     </div>
-      <span id="dist-stop-button" class="text-button">click to stop</span>
-      <span id="dist-start-button" class="text-button">click to start</span>
+
+
   </div>
 
   <div class="clear"></div>
@@ -132,8 +145,8 @@
   <div class="left_col">
     <div id="sync-container" class="container">
       <div id="checkboxes">
-	<input type="checkbox" id="trace" checked="checked">Trace<br>
-	<input type="checkbox" id="spin">Spin<br>
+	<input type="checkbox" id="trace" checked="checked">Trace</input>
+	<input type="checkbox" id="spin">Spin</input>
       </div>
       <div id="sync-oscillator"></div>
       <div id="sync-scope"></div>
@@ -144,8 +157,5 @@
     <span id="sync-stop-button" class="text-button">click to stop</span>
     <span id="sync-start-button" class="text-button">click to start</span>
   </div>
-
-
-</div>
   
-
+</div>

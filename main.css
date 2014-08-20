@@ -38,7 +38,7 @@ h2, .notes {
     top: 10px;
     z-index: 10;
     border-radius: 10px;
-    border: 2px solid #ccc;
+    border: 2px solid #00f;
 }
 
 #vdp-box {
@@ -57,16 +57,27 @@ h2, .notes {
 
 .vector-field {
     position: absolute;
-    bottom: 65px;
+    top: 65px;
     left: 65px;
     background-color: transparent;
     border: 1px dashed blue;
     border-radius: 10px;
 }
+
+#intro-fig {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 450px;
+    height: 450px;
+    background: transparent;
+    border: 1px dashed cyan;
+}
+
       
 #intro-oscillator {
     position: absolute;
-    bottom: 0px;
+    top: 0px;
     left: 0px;
     background: transparent;
     border: 1px dashed red;
@@ -74,7 +85,7 @@ h2, .notes {
 
 #dist-oscillator {
     position: absolute;
-    bottom: 0px;
+    top: 0px;
     left: 0px;
     background: transparent;
     border: 1px dashed red;
