@@ -63,11 +63,15 @@ class Figure
 
     @xMax = 4 # horizontal plot limit
     @yMax = 4 # vertical plot limit
-
     @margin = {top: 65, right: 65, bottom: 65, left: 65}
     @width = 450 - @margin.left - @margin.top
     @height = 450 - @margin.left - @margin.top
-
+    @xscale = d3.scale.linear()
+        .domain([-@xMax, @xMax])
+        .range([0, @width])
+    @yscale = d3.scale.linear()
+        .domain([-@yMax, @yMax])
+        .range([@height, 0])
 
 class Canvas
 
@@ -78,7 +82,6 @@ class Canvas
     constructor: (id) ->
 
         @canvas = $(id) 
-        #@canvas.css("left","#{margin.left}px").css("top","#{margin.top}px")
         @canvas[0].width = width
         @canvas[0].height = height
         @ctx = @canvas[0].getContext('2d')
@@ -95,55 +98,30 @@ class vfPoint # vector field point
     width  = Figure.width
     height = Figure.height
     
-    constructor: (@pos={x:0, y:0}, @mu=1) ->
-
+    constructor: (@vf={x:1, y:1}, @mu=1) ->
         @vel = new Vector 0, 0 # velocity
-        @vf = new Vector 0, 0 # vector-field coords
         @d = 0 # distance
 
-        @scales() # funcs to X-form between screen position and VF coords
-        @update() # VF coords and velocity
-        @draw()
-
-    scales: ->
-        
-        @xScale = d3.scale.linear()
-            .domain([-Figure.xMax, Figure.xMax])
-            .range([0, width])
-        @yScale = d3.scale.linear()
-            .domain([-Figure.yMax, Figure.yMax])
-            .range([height, 0])
-
-    update: ->
-        # VF coords
-        @vf.x = @xScale.invert @pos.x
-        @vf.y = @yScale.invert @pos.y
-        
-        # Velocity (screen units)
+    updateVel: ->
         vel = f(0, [@vf.x, @vf.y], @mu)
-        @vel.x = @xScale.invert vel[0]
-        @vel.y = @yScale.invert vel[1]
-
-    draw: ->
+        @vel.x = vel[0]
+        @vel.y = vel[1]
 
     move: ->
+        @updateVel()
 
-        @update()
-        
         # Runge Kutta step
         w = ode(rk[1], f, [0, 0.02], [@vf.x, @vf.y], @mu)[1]
-        # map VF coords to screen coords
-        @pos.x = @xScale w[0]
-        @pos.y = @yScale w[1]
+        @vf.x = w[0]
+        @vf.y = w[1]
         
-        # accumulate distance (screen units)
+        # accumulate distance
         @d += @vel.mag()
 
     visible: -> # conditions for showing particles
-        (0 <= @pos.x <= width) and 
-            (0 <= @pos.y <= height) and
-            @vel.mag() > 0 and
-            @d < 1200
+        (-4 <= @vf.x <= 4) and 
+            (-4 <= @vf.y <= 4) and
+            @d < 200
     
 class Particle extends vfPoint
 
@@ -154,7 +132,8 @@ class Particle extends vfPoint
         @color = ["red", "green", "blue"][Math.floor(3*Math.random())]
 
     draw: ->
-        @canvas.square @pos, @size, @color
+        pos = {x:Figure.xscale(@vf.x), y:Figure.yscale(@vf.y)}
+        @canvas.square pos, @size, @color
 
             
 class Emitter
@@ -177,7 +156,9 @@ class Emitter
             particle.draw()
 
     newParticles: ->
-        position = new Vector @cw*Math.random(), @ch*Math.random()
+        u = Figure.xMax*(2*Math.random()-1)
+        v = Figure.yMax*(2*Math.random()-1)
+        position = new Vector u, v
         new Particle @canvas, position, @mu 
 
     updateMu: ->
@@ -218,9 +199,9 @@ class Oscillator extends d3Object
     constructor: (X) ->
         super X 
 
-        @obj.on("click", null)  # Clear any previous event handlers.
-        #@obj.on("click", => @click())
-        d3.behavior.drag().on("drag", null)  # Clear any previous event handlers.
+        # Clear any previous event handlers.
+        @obj.on("click", null)  
+        d3.behavior.drag().on("drag", null)
        
         @obj.attr("width", width + margin.left + margin.right)
         @obj.attr("height", height + margin.top + margin.bottom)
@@ -228,8 +209,7 @@ class Oscillator extends d3Object
 
         @obj.append("g")
             .attr("class", "axis")
-            .attr("transform",
-                "translate(#{margin.left}, #{margin.top+height+10})")
+            .attr("transform", "translate(#{margin.left}, #{margin.top+height+10})")
             .call(@xAxis) 
 
         @obj.append("g")
@@ -242,8 +222,8 @@ class Oscillator extends d3Object
             .attr("transform", "translate(#{margin.left},#{margin.top})")
 
         @limitCircle = @plot.append("circle")
-            .attr("cx", @xscale(0)+margin.left*0)
-            .attr("cy", @yscale(0)+margin.top*0)
+            .attr("cx", @xscale 0)
+            .attr("cy", @yscale 0)
             .attr("r", @xscale(2)-@xscale(0))
             .style("fill", "transparent")
             .style("stroke", "ccc")
@@ -293,23 +273,14 @@ class Oscillator extends d3Object
         guide.attr("y2", @yscale Figure.yMax*sin(phi))
          
     initAxes: ->
-
-        @xscale = d3.scale.linear()
-            .domain([-Figure.xMax, Figure.xMax])
-            .range([0, width])
-
+        @xscale = Figure.xscale
         @xAxis = d3.svg.axis()
             .scale(@xscale)
             .orient("bottom")
-
-        @yscale = d3.scale.linear()
-            .domain([-Figure.yMax, Figure.yMax])
-            .range([height, 0])
-
+        @yscale = Figure.yscale
         @yAxis = d3.svg.axis()
             .scale(@yscale)
             .orient("left")
-
 
 class Disturbance extends d3Object
         
@@ -471,8 +442,6 @@ class Scope extends d3Object
 
         super @spec.scope
 
-        #@obj.attr('width', width)
-        #    .attr('height', height)
         @obj.attr("width", width + margin.left + margin.right)
         @obj.attr("height", height + margin.top + margin.bottom)
         @obj.attr("id", "oscillator")
@@ -561,18 +530,13 @@ class IntroSim
     constructor: ->
 
         @canvas = new Canvas "#intro-vector-field"
-
         @oscillator = new Oscillator "intro-oscillator"
-        
         @vectorField = new Emitter @canvas
-
         @markerPoint = new vfPoint
-        @markerPoint.pos.x = @markerPoint.x 3
-        @markerPoint.pos.y = @markerPoint.y -3
 
         specX =
             scope : "x-scope"
-            initVal : @markerPoint.pos.x
+            initVal : Figure.xscale(@markerPoint.vf.x)
             color : "green"
             yMin : -4
             yMax : 4
@@ -580,9 +544,10 @@ class IntroSim
             height : Figure.height
             N: 255
             fade: 0
+
         specY =
             scope : "y-scope"
-            initVal: @markerPoint.pos.y
+            initVal: Figure.yscale(@markerPoint.vf.y)
             color : "red"
             yMin : -4
             yMax : 4
@@ -590,6 +555,7 @@ class IntroSim
             height : Figure.height
             N: 255
             fade: 0
+
         @scopeX = new Scope specX
         @scopeY = new Scope specY
 
@@ -602,6 +568,7 @@ class IntroSim
         d3.selectAll("#intro-start-button").on "click", => @start()
 
         setTimeout (=> @animate() ), 2000
+
 
     updateMu: ->
         k = parseFloat(d3.select("#mu-slider").property("value"))
@@ -616,12 +583,15 @@ class IntroSim
         @drawMarker()
 
     snapshot2: ->
-        @scopeX.draw @markerPoint.pos.x
-        @scopeY.draw @markerPoint.pos.y
+        @scopeX.draw Figure.xscale(@markerPoint.vf.x)
+        @scopeY.draw Figure.yscale(@markerPoint.vf.y)
 
     drawMarker: ->
         @markerPoint.move()
-        @oscillator.moveMarker(@oscillator.marker0, @markerPoint.pos.x, @markerPoint.pos.y)
+        @oscillator.moveMarker(@oscillator.marker0,
+            Figure.xscale(@markerPoint.vf.x),
+            Figure.yscale(@markerPoint.vf.y)
+        )
 
     animate: ->
         @timer1 = setInterval (=> @snapshot1()), 20
@@ -645,37 +615,52 @@ class DistSim
 
         @oscillator = new Oscillator "dist-oscillator"
         @canvas = new Canvas "#dist-vector-field"
-        @point0 = new vfPoint
-        @point1 = new vfPoint
-        
-        @initPointMarker(@point0, @u0, @v0, @oscillator.marker0)
-        @initPointMarker(@point1, @u1, @v1, @oscillator.marker1)
+        @point0 = new vfPoint {x:@u0, y:@v0}, 0.05
+        @point1 = new vfPoint {x:@u1, y:@v1}, 0.05
+
+        @markerUpdate(@point0,  @oscillator.marker0)
+        @markerUpdate(@point1,  @oscillator.marker1)
+
+        @guideUpdate(@point0, @oscillator.guide0)
+        @guideUpdate(@point1, @oscillator.guide1)
 
         d3.selectAll("#dist-stop-button").on "click", => @stop()
         d3.selectAll("#dist-start-button").on "click", => @start()
 
+        d3.selectAll("#dist-scenario-1").on "click", =>
+            @stop()
+            @point0.vf.x = 1
+            @point0.vf.y = 1
+            @point1.vf.x = 1
+            @point1.vf.y = -1
+
+            @markerUpdate(@point0,  @oscillator.marker0)
+            @markerUpdate(@point1,  @oscillator.marker1)
+            @guideUpdate(@point0, @oscillator.guide0)
+            @guideUpdate(@point1, @oscillator.guide1)
+            @start()
+
         setTimeout (=> @start() ), 2000
 
-    initPointMarker: (point, u, v, marker) ->
-        # initialize vector field point at (u,v) and sync marker
-        point.pos.x = point.xScale u # convert to screen units
-        point.pos.y = point.yScale v
-        point.mu = 0.1
-        marker.attr("cx", point.pos.x)
-        marker.attr("cy", point.pos.y)
+    markerUpdate: (point, marker) ->
+        marker.attr("cx", Figure.xscale point.vf.x)
+        marker.attr("cy", Figure.yscale point.vf.y)
+
+    guideUpdate: (point, guide) ->
+        @oscillator.moveGuide(guide, Math.atan2(point.vf.y, point.vf.x))
 
     snapshot: ->
-        @drawMarker()
-        @canvas.square {x:@point0.pos.x, y:@point0.pos.y}, 2, "black"
-        @canvas.square {x:@point1.pos.x, y:@point1.pos.y}, 2, "red"
-
-    drawMarker: ->
         @point0.move()
         @point1.move()
-        @oscillator.moveMarker(@oscillator.marker0, @point0.pos.x, @point0.pos.y)
-        @oscillator.moveMarker(@oscillator.marker1, @point1.pos.x, @point1.pos.y)
-        @oscillator.moveGuide(@oscillator.guide0, Math.atan2(@point0.vf.y, @point0.vf.x))
-        @oscillator.moveGuide(@oscillator.guide1, Math.atan2(@point1.vf.y, @point1.vf.x))
+
+        @oscillator.moveMarker(@oscillator.marker0, Figure.xscale(@point0.vf.x), Figure.yscale(@point0.vf.y))
+        @oscillator.moveMarker(@oscillator.marker1, Figure.xscale(@point1.vf.x), Figure.yscale(@point1.vf.y))
+
+        @guideUpdate(@point0, @oscillator.guide0)
+        @guideUpdate(@point1, @oscillator.guide1)
+
+        @canvas.square {x:@oscillator.xscale(@point0.vf.x), y:@oscillator.yscale(@point0.vf.y)}, 2, "black"
+        @canvas.square {x:@oscillator.xscale(@point1.vf.x), y:@oscillator.yscale(@point1.vf.y)}, 2, "red"
 
     animate: ->
         @timer = setInterval (=> @snapshot()), 20
@@ -685,12 +670,11 @@ class DistSim
         @timer = null
 
     start: ->
-        
         # Update vector field points (marker may have been dragged).
-        @point0.pos.x = @oscillator.marker0.attr("cx")
-        @point0.pos.y = @oscillator.marker0.attr("cy")
-        @point1.pos.x = @oscillator.marker1.attr("cx")
-        @point1.pos.y = @oscillator.marker1.attr("cy")
+        @point0.vf.x = @oscillator.xscale.invert @oscillator.marker0.attr("cx")
+        @point0.vf.y = @oscillator.yscale.invert @oscillator.marker0.attr("cy")
+        @point1.vf.x = @oscillator.xscale.invert @oscillator.marker1.attr("cx")
+        @point1.vf.y = @oscillator.yscale.invert @oscillator.marker1.attr("cy")
 
         @canvas.clear()
         
@@ -732,7 +716,7 @@ class SyncSim
         @scope.draw(@disturbance.yscale @disturbance.mag)
 
 
-#new IntroSim
+new IntroSim
 new DistSim
 #new SyncSim
 
