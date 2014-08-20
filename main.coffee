@@ -274,22 +274,17 @@ class Oscillator extends d3Object
             .scale(@yscale)
             .orient("left")
 
-class Disturbance extends d3Object
-        
+class PhaseSync extends d3Object
+       
     margin = Figure.margin
     width = Figure.width
     height = Figure.height
-    n = 0
-    phiP = 0
-    phiM = 0
-    omega = 1 # degree/step
-    omegaP = 0
-    omegaM = 0
+    omega = 1 # degrees/sample
 
-    constructor: (X) ->
+    constructor: (X, @offset=0) ->
         super X 
 
-        @spin = 0
+        @phi = 0 # degrees 
 
         # Clear any previous event handlers.
         @obj.on("click", null)  
@@ -297,9 +292,9 @@ class Disturbance extends d3Object
        
         @obj.attr("width", width + margin.left + margin.right)
         @obj.attr("height", height + margin.top + margin.bottom)
-        @obj.attr("id", "disturbance")
+        @obj.attr("id", "phase-sync")
 
-        @obj.append("svg:defs")
+        @obj.append("svg:defs") # arrow
             .append("svg:marker")
             .attr("id", "arrow")
             .attr("viewBox", "0 -5 10 10")
@@ -312,22 +307,13 @@ class Disturbance extends d3Object
             .attr("d", "M0,-5L10,0L0,5")
             .style("stroke","ccc")
 
-        @obj.append("g")
-            .attr("class", "axis")
-            .attr("transform","translate(#{margin.left-10}, #{margin.top})")
-            .call(@yAxis) 
-
         @plot = @obj.append("g")
             .attr("id", "plot")
             .attr("transform", "translate(#{margin.left},#{margin.top})")
 
-        @markerDistInner = @vector @plot, 0, 1.5
-        @markerDistOuter = @vector @plot, 0, 1.5
-        
-        @markerEquiv1 = @vector @plot, 0, 0.75
-        @markerEquiv2 = @vector @plot, 0, 0.75
+        @vecDist = @vector @plot, 0, 1.5 # vector showing disturbance
 
-        @markerSoln = @plot.append("circle")
+        @markerSoln = @plot.append("circle") # solution on limit-cycle
             .attr("id", "marker-solution")
             .attr("r", 10)
             .attr("cx", @xscale 0 )
@@ -335,14 +321,7 @@ class Disturbance extends d3Object
             .attr("stroke", "black")
             .attr("fill", "transparent")
 
-        @plot.append("circle")
-            .attr("r", @xscale(0.75)-@xscale(0))
-            .attr("cx", @xscale 0 )
-            .attr("cy", @yscale 0 )
-            .attr("stroke", "black")
-            .attr("fill", "transparent")
-
-        @plot.append("circle")
+        @plot.append("circle") # limit-cycle
             .attr("r", @xscale(4)-@xscale(0))
             .attr("cx", @xscale 0 )
             .attr("cy", @yscale 0 )
@@ -351,29 +330,7 @@ class Disturbance extends d3Object
             .style("stroke-dasharray", ("10,3"))
             .attr("visibility", "visible")
 
-        @ticks = @plot.append("g")
-            .attr("id", "ticks")
-            .attr("transform", "translate(#{0},#{0})")
-
-        @ticks.selectAll("rect.tick")
-            .data(d3.range(24))
-            .enter()
-            .append("rect")
-            .attr("class", "tick")
-            .attr("x", 0)
-            .attr("y", 70)
-            .attr("width", 1)
-            .attr("height", (d, i) -> (if (i % 2) then 0 else 15*6))
-            .attr("transform", (d, i) =>
-                "translate(#{@xscale 0},#{@xscale 0}) rotate(#{i*15+150})"
-            )
-            .attr("fill", "steelblue")
-
-        @rotate(false)
-
-
-    vector: (U, x, y) ->
-
+    vector: (U, x, y) -> # from (0,0)
         U.append('line')
             .attr("marker-end", "url(#arrow)")
             .attr("x1", @xscale 0).attr("y1", @yscale x)
@@ -382,45 +339,19 @@ class Disturbance extends d3Object
             .style("stroke","black")
             .style("stroke-width","1")
 
-    rotate: (spin) ->
-
-        if spin
-            omegaP = 2*omega
-            omegaM = 0
-        else
-            omegaP = omega
-            omegaM = omega
-            phiP = 0
-            phiM = 0
-
     move: () ->
-        phiP += omegaP # degrees
-        phiM += omegaM
-
-        @mag = 1.5*Math.sin(phiM*pi/180)
-        
-        @markerDistInner.attr("y2", @yscale @mag)
-        @markerDistOuter
-            .attr("x1", @xscale -4*COS(phiM)).attr("y1", @yscale 4*SIN(phiM))
-            .attr("x2", @xscale -4*COS(phiM)).attr("y2", @yscale 4*SIN(phiM)+@mag)
+        @phi += omega
+        theta = 45
+        @mag = 1.5*SIN(@phi+@offset) # length of dist vector
+        @vecDist
+            .attr("x1", @xscale 4*COS(@phi)).attr("y1", @yscale -4*SIN(@phi))
+            .attr("x2", @xscale 4*COS(@phi)).attr("y2", @yscale -4*SIN(@phi)+@mag)
         center = "#{@xscale(0)} #{@yscale(0)}"
-        @markerEquiv1.attr("transform", "rotate(#{-phiP+90} #{center} )")
-        @markerEquiv2.attr("transform", "rotate(#{phiM-90} #{center} )")
-        @markerSoln.attr("transform", "rotate(#{phiM-90} #{center} )")
-        @ticks.attr("transform", "rotate(#{phiM} #{center} )")
+        @markerSoln.attr("transform", "rotate(#{@phi+90} #{center} )")
          
     initAxes: ->
-        @xscale = d3.scale.linear()
-            .domain([-Figure.xMax, Figure.xMax])
-            .range([0, width])
-
-        @yscale = d3.scale.linear()
-            .domain([-Figure.yMax, Figure.yMax])
-            .range([height, 0])
-
-        @yAxis = d3.svg.axis()
-            .scale(@yscale)
-            .orient("left")
+        @xscale = Figure.xscale
+        @yscale = Figure.yscale
 
 class Scope extends d3Object
 
@@ -439,8 +370,9 @@ class Scope extends d3Object
         @obj.attr("id", "oscillator")
 
         @obj.append("g")
+            .attr("id", "scope-axis")
             .attr("class", "axis")
-            .attr("transform","translate(#{0}, #{0})")
+            .attr("transform","translate(#{margin.left}, #{margin.top})")
             .call(@yAxis) 
 
         @screen = @obj.append('g')
@@ -469,7 +401,7 @@ class Scope extends d3Object
             .attr("stop-opacity", 1);
 
         @line = d3.svg.line()
-            .x((d) =>  @x(d))
+            .x((d) =>  @xScale(d))
             .y((d,i) =>  @hist[i])
             .interpolate("basis")
 
@@ -500,21 +432,21 @@ class Scope extends d3Object
                                                                     
     initAxes: ->
         
-        @y = d3.scale.linear()
-            .domain([-@spec.yMin, @spec.yMax])
+        @yScale = d3.scale.linear()
+            .domain([@spec.yMin, @spec.yMax])
             .range([0, height])
 
-        @x = d3.scale.linear()
+        @xScale = d3.scale.linear()
             .domain([0, @spec.N-1])
             .range([0, width])
 
         @xAxis = d3.svg.axis()
-            .scale(@x)
+            .scale(@xScale)
             .orient("bottom")
             .tickFormat(d3.format("d"))
 
         @yAxis = d3.svg.axis()
-            .scale(@y)
+            .scale(@yScale)
             .orient("left")
 
 class IntroSim
@@ -674,39 +606,45 @@ class SyncSim
     # Illustrate synchronization in rotating frame.
     
     constructor:  ->
-        @disturbance = new Disturbance "sync-oscillator"
+        @phaseSync = new PhaseSync "sync-oscillator"
 
         spec =
             scope : "sync-scope"
             initVal: 160
             color : "green"
-            yMin : -4
-            yMax : 4
+            yMin : -1
+            yMax : 1
             width : 320
             height : 320
-            N: 101
+            N: 201
             fade: 1  
         @scope = new Scope spec
 
         new Checkbox "trace" , (v) =>  @scope.show(v)
-        new Checkbox "spin" , (v) =>  @disturbance.rotate(v)
+
+        $("#offset-slider").on "change", => @updateOffset()
 
         setTimeout (=> @animate() ), 2000
+
+    updateOffset: ->
+        offset = parseFloat(d3.select("#offset-slider").property("value"))
+        @phaseSync.offset = offset
+        d3.select("#offset-value").html(offset)
 
     animate: ->
         @timer1 = setInterval (=> @snapshot1()), 20
         @timer2 = setInterval (=> @snapshot2()), 50
 
     snapshot1: ->
-        @disturbance.move()
+        @phaseSync.move()
 
     snapshot2: ->
-        @scope.draw(@disturbance.yscale @disturbance.mag)
+        @scope.draw(@scope.yScale COS(@phaseSync.phi)*SIN(@phaseSync.phi+@phaseSync.offset))
 
 
-new IntroSim
-new DistSim
-#new SyncSim
+#new IntroSim
+#new DistSim
+new SyncSim
 
 #d3.selectAll("#stop-button").on "click", ->
 #    distSim.stop()
