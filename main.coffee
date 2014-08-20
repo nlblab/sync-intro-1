@@ -608,30 +608,26 @@ class DistSim
         @canvas = new Canvas "#dist-vector-field"
         @point0 = new vfPoint @u0, @v0, 0.05
         @point1 = new vfPoint @u1, @v1, 0.05
-
-        @markerUpdate(@point0,  @oscillator.marker0)
-        @markerUpdate(@point1,  @oscillator.marker1)
-
-        @guideUpdate(@point0, @oscillator.guide0)
-        @guideUpdate(@point1, @oscillator.guide1)
+        @update()
 
         d3.selectAll("#dist-stop-button").on "click", => @stop()
         d3.selectAll("#dist-start-button").on "click", => @start()
-
-        d3.selectAll("#dist-scenario-1").on "click", =>
-            @stop()
-            @point0.x = 1
-            @point0.y = 1
-            @point1.x = 1
-            @point1.y = -1
-
-            @markerUpdate(@point0,  @oscillator.marker0)
-            @markerUpdate(@point1,  @oscillator.marker1)
-            @guideUpdate(@point0, @oscillator.guide0)
-            @guideUpdate(@point1, @oscillator.guide1)
-            @start()
+        d3.selectAll("#dist-scenario-1").on "click", => @restart({x:1, y:1},{x:1, y:-1})
 
         setTimeout (=> @start() ), 2000
+
+    restart: (p0, p1) =>
+        @stop()
+        [@point0.x, @point0.y] = [p0.x, p0.y]
+        [@point1.x, @point1.y] = [p1.x, p1.y]
+        @update()
+        @start()
+
+    update: ->
+        @markerUpdate(@point0,  @oscillator.marker0)
+        @markerUpdate(@point1,  @oscillator.marker1)
+        @guideUpdate(@point0, @oscillator.guide0)
+        @guideUpdate(@point1, @oscillator.guide1)
 
     markerUpdate: (point, marker) ->
         marker.attr("cx", Figure.xscale point.x)
