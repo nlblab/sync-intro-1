@@ -98,41 +98,32 @@ class vfPoint # vector field point
     width  = Figure.width
     height = Figure.height
     
-    constructor: (@vf={x:1, y:1}, @mu=1) ->
+    constructor: (@x=1, @y=1, @mu=1) ->
         @vel = new Vector 0, 0 # velocity
         @d = 0 # distance
 
     updateVel: ->
-        vel = f(0, [@vf.x, @vf.y], @mu)
+        vel = f(0, [@x, @y], @mu)
         @vel.x = vel[0]
         @vel.y = vel[1]
 
     move: ->
         @updateVel()
-
-        # Runge Kutta step
-        w = ode(rk[1], f, [0, 0.02], [@vf.x, @vf.y], @mu)[1]
-        @vf.x = w[0]
-        @vf.y = w[1]
-        
-        # accumulate distance
+        [@x, @y] = ode(rk[1], f, [0, 0.02], [@x, @y], @mu)[1]
         @d += @vel.mag()
 
-    visible: -> # conditions for showing particles
-        (-4 <= @vf.x <= 4) and 
-            (-4 <= @vf.y <= 4) and
-            @d < 200
+    visible: -> (-4 <= @x <= 4) and (-4 <= @y <= 4) and @d < 200
     
 class Particle extends vfPoint
 
-    constructor: (@canvas, Z, mu) ->
-        super Z, mu
+    constructor: (@canvas, x, y, mu) ->
+        super x, y, mu
 
         @size = 2
         @color = ["red", "green", "blue"][Math.floor(3*Math.random())]
 
     draw: ->
-        pos = {x:Figure.xscale(@vf.x), y:Figure.yscale(@vf.y)}
+        pos = {x:Figure.xscale(@x), y:Figure.yscale(@y)}
         @canvas.square pos, @size, @color
 
             
@@ -159,7 +150,7 @@ class Emitter
         u = Figure.xMax*(2*Math.random()-1)
         v = Figure.yMax*(2*Math.random()-1)
         position = new Vector u, v
-        new Particle @canvas, position, @mu 
+        new Particle @canvas, position.x, position.y, @mu 
 
     updateMu: ->
         for particle in @particles
@@ -536,7 +527,7 @@ class IntroSim
 
         specX =
             scope : "x-scope"
-            initVal : Figure.xscale(@markerPoint.vf.x)
+            initVal : Figure.xscale(@markerPoint.x)
             color : "green"
             yMin : -4
             yMax : 4
@@ -547,7 +538,7 @@ class IntroSim
 
         specY =
             scope : "y-scope"
-            initVal: Figure.yscale(@markerPoint.vf.y)
+            initVal: Figure.yscale(@markerPoint.y)
             color : "red"
             yMin : -4
             yMax : 4
@@ -583,14 +574,14 @@ class IntroSim
         @drawMarker()
 
     snapshot2: ->
-        @scopeX.draw Figure.xscale(@markerPoint.vf.x)
-        @scopeY.draw Figure.yscale(@markerPoint.vf.y)
+        @scopeX.draw Figure.xscale(@markerPoint.x)
+        @scopeY.draw Figure.yscale(@markerPoint.y)
 
     drawMarker: ->
         @markerPoint.move()
         @oscillator.moveMarker(@oscillator.marker0,
-            Figure.xscale(@markerPoint.vf.x),
-            Figure.yscale(@markerPoint.vf.y)
+            Figure.xscale(@markerPoint.x),
+            Figure.yscale(@markerPoint.y)
         )
 
     animate: ->
@@ -615,8 +606,8 @@ class DistSim
 
         @oscillator = new Oscillator "dist-oscillator"
         @canvas = new Canvas "#dist-vector-field"
-        @point0 = new vfPoint {x:@u0, y:@v0}, 0.05
-        @point1 = new vfPoint {x:@u1, y:@v1}, 0.05
+        @point0 = new vfPoint @u0, @v0, 0.05
+        @point1 = new vfPoint @u1, @v1, 0.05
 
         @markerUpdate(@point0,  @oscillator.marker0)
         @markerUpdate(@point1,  @oscillator.marker1)
@@ -629,10 +620,10 @@ class DistSim
 
         d3.selectAll("#dist-scenario-1").on "click", =>
             @stop()
-            @point0.vf.x = 1
-            @point0.vf.y = 1
-            @point1.vf.x = 1
-            @point1.vf.y = -1
+            @point0.x = 1
+            @point0.y = 1
+            @point1.x = 1
+            @point1.y = -1
 
             @markerUpdate(@point0,  @oscillator.marker0)
             @markerUpdate(@point1,  @oscillator.marker1)
@@ -643,24 +634,24 @@ class DistSim
         setTimeout (=> @start() ), 2000
 
     markerUpdate: (point, marker) ->
-        marker.attr("cx", Figure.xscale point.vf.x)
-        marker.attr("cy", Figure.yscale point.vf.y)
+        marker.attr("cx", Figure.xscale point.x)
+        marker.attr("cy", Figure.yscale point.y)
 
     guideUpdate: (point, guide) ->
-        @oscillator.moveGuide(guide, Math.atan2(point.vf.y, point.vf.x))
+        @oscillator.moveGuide(guide, Math.atan2(point.y, point.x))
 
     snapshot: ->
         @point0.move()
         @point1.move()
 
-        @oscillator.moveMarker(@oscillator.marker0, Figure.xscale(@point0.vf.x), Figure.yscale(@point0.vf.y))
-        @oscillator.moveMarker(@oscillator.marker1, Figure.xscale(@point1.vf.x), Figure.yscale(@point1.vf.y))
+        @oscillator.moveMarker(@oscillator.marker0, Figure.xscale(@point0.x), Figure.yscale(@point0.y))
+        @oscillator.moveMarker(@oscillator.marker1, Figure.xscale(@point1.x), Figure.yscale(@point1.y))
 
         @guideUpdate(@point0, @oscillator.guide0)
         @guideUpdate(@point1, @oscillator.guide1)
 
-        @canvas.square {x:@oscillator.xscale(@point0.vf.x), y:@oscillator.yscale(@point0.vf.y)}, 2, "black"
-        @canvas.square {x:@oscillator.xscale(@point1.vf.x), y:@oscillator.yscale(@point1.vf.y)}, 2, "red"
+        @canvas.square {x:@oscillator.xscale(@point0.x), y:@oscillator.yscale(@point0.y)}, 2, "black"
+        @canvas.square {x:@oscillator.xscale(@point1.x), y:@oscillator.yscale(@point1.y)}, 2, "red"
 
     animate: ->
         @timer = setInterval (=> @snapshot()), 20
@@ -671,10 +662,10 @@ class DistSim
 
     start: ->
         # Update vector field points (marker may have been dragged).
-        @point0.vf.x = @oscillator.xscale.invert @oscillator.marker0.attr("cx")
-        @point0.vf.y = @oscillator.yscale.invert @oscillator.marker0.attr("cy")
-        @point1.vf.x = @oscillator.xscale.invert @oscillator.marker1.attr("cx")
-        @point1.vf.y = @oscillator.yscale.invert @oscillator.marker1.attr("cy")
+        @point0.x = @oscillator.xscale.invert @oscillator.marker0.attr("cx")
+        @point0.y = @oscillator.yscale.invert @oscillator.marker0.attr("cy")
+        @point1.x = @oscillator.xscale.invert @oscillator.marker1.attr("cx")
+        @point1.y = @oscillator.yscale.invert @oscillator.marker1.attr("cy")
 
         @canvas.clear()
         
