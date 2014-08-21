@@ -3,8 +3,8 @@
 # Temp fix - to be done in puzlet.js.
 Number.prototype.pow = (p) -> Math.pow this, p
 
-WebFontConfig = google:
-    families: ["Reenie+Beanie::latin"]
+#WebFontConfig = google:
+#    families: ["Reenie+Beanie::latin"]
 
 #$("#run_button").prop("disabled", true)
 
