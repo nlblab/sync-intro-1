@@ -2,6 +2,7 @@
     "main.html",
     "main.css",
     "main.coffee",
+    "vdp.coffee",
     "/puzlet/js/d3.min.js",
     "/ode-fixed/main.js"
 ]

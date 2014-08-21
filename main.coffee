@@ -34,10 +34,10 @@ char "equals", "#61"
 
 # VdP equation
 f = (t, v, mu) -> 
-	[
+    [
         v[1]
         mu*(1-v[0]*v[0])*v[1]-v[0]
-	]
+    ]
 
 
 class Vector
@@ -188,7 +188,7 @@ class Oscillator extends d3Object
     width = Figure.width
     height = Figure.height
 
-    constructor: (X) ->
+    constructor: (X, @spec) ->
         super X 
 
         # Clear any previous event handlers.
@@ -220,11 +220,14 @@ class Oscillator extends d3Object
             .style("fill", "transparent")
             .style("stroke", "ccc")
 
-        @guide0 = @radialLine()
-        @guide1 = @radialLine()
+        @guide0 = @radialLine(@spec.guide0color)
+        @guide1 = @radialLine(@spec.guide1color)
 
-        @marker0 = @marker("black", @guide0)
-        @marker1 = @marker("red", @guide1)
+        @marker0 = @marker(@spec.marker0color, @guide0)
+        @marker1 = @marker(@spec.marker1color, @guide1)
+
+        @moveMarker(@marker0, -1000, -1000) # initially hide off-screen
+        @moveMarker(@marker1, -1000, -1000)
         
     marker: (color, guide) ->
         m = @plot.append("circle")
@@ -242,11 +245,11 @@ class Oscillator extends d3Object
                 .on("drag", => @dragMarker(m, d3.event.x, d3.event.y, guide))
             )
         
-    radialLine: ->
+    radialLine: (color) ->
         @plot.append('line')
             .attr("x1", @xscale 0)
             .attr("y1", @yscale 0)
-            .style("stroke","000")
+            .style("stroke", color)
             .style("stroke-width","1")
         
     dragMarker: (marker, u, v, guide) ->
@@ -472,7 +475,12 @@ class IntroSim
     constructor: ->
 
         @canvas = new Canvas "#intro-vector-field"
-        @oscillator = new Oscillator "intro-oscillator"
+        @oscillator = new Oscillator "intro-oscillator",
+            marker0color: "black"
+            marker1color: "transparent"
+            guide0color: "transparent"
+            guide1color: "transparent"
+
         @vectorField = new Emitter @canvas
         @markerPoint = new vfPoint
 
@@ -665,7 +673,7 @@ class SyncSim
         @scope.draw(@scope.yScale -SIN(@phaseSync.phi)*COS(@phaseSync.phi-@phaseSync.offset))
 
 
-new IntroSim
+#new IntroSim
 #new DistSim
 #new SyncSim
 

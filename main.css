@@ -11,7 +11,7 @@ h2, .notes {
 }
 
 .box-text {
-    width: 800px;
+    width: 960px;
     margin: 0 auto;
     margin-bottom: 0px;
     border: 2px solid #ccc;
@@ -42,8 +42,8 @@ h2, .notes {
 }
 
 #vdp-box {
-    width: 900px;
-    height: 900px;
+    width: 960px;
+    /*height: 900px;*/
 }
 
 #dist-container {
@@ -57,18 +57,23 @@ h2, .notes {
 
 .vector-field {
     position: absolute;
-    top: 65px;
-    left: 65px;
+    /*top: 65px;
+    left: 65px;*/
     background-color: transparent;
     border: 1px dashed blue;
     border-radius: 10px;
+}
+
+#intro-vector-field {
+    top: 65px;
+    left: 65px;
 }
 
 #intro-fig {
     position: relative;
     top: 0px;
     left: 0px;
-    width: 450px;
+    width: 900px;
     height: 450px;
     background: transparent;
     border: 1px dashed cyan;
@@ -92,20 +97,20 @@ h2, .notes {
 }
 
 
-#x-scope {
+.scope {
     position: absolute;
-    bottom: 0px;
-    right: 0px;
     background: transparent;
-    border: 1px dashed green;
+    border: 2px dashed green;
+}
+
+#x-scope {
+    top: 0px;
+    right: 0px;
 }
 
 #y-scope {
-    position: absolute;
-    bottom: 0px;
+    top: 0px;
     right: 0px;
-    background: transparent;
-    border: 1px dashed green;
 }
 
 #sync-scope {
@@ -129,7 +134,7 @@ h2, .notes {
 
 #intro-checkboxes {
     position: absolute;
-    bottom: 440px;
+    bottom: 0px;
     left: 20px;
     width: 200px;
     height: 100px;
@@ -139,7 +144,7 @@ h2, .notes {
 
 #intro-sliders {
     position: absolute;
-    bottom: 440px;
+    bottom: 0px;
     right: 20px;
     width: 200px;
     height: 100px;

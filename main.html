@@ -57,48 +57,75 @@
 
   <div id="vdp-box" class="container">
 
-    <span id="intro-stop-button" class="text-button">click to stop</span>
-    <span id="intro-start-button" class="text-button">click to start</span>
-
-
-    <h3 style="text-align:center;">Van der Pol Oscillator</h3>
+    <h3 style="text-align:center;style="margin-bottom: 45px;"">Van der Pol Oscillator</h3>
+    
     <div class="box-text">
-      The [http://en.wikipedia.org/wiki/Van_der_Pol_oscillator,Van der Pol oscillator]
-      is just complex enough to be a [http://en.wikipedia.org/wiki/Toy_problem,toy problem]
-      for synchronization:
-      $$
-      \frac{d^2x}{dt^2}-\mu \left(1-x^2 \right) \frac{dx}{dt} + x = 0 
-      $$
-      If we set one state to be $x$ and the other $y=dx/dt$ we find the state behavior shown
-      on the lower left (states as a function of time appear on the lower right). 
-      The phase-space is illustrated by the colored dots, which show 
-      the trajectory of random initial states for a finite time. The black dot shows a 
-      single initial condition that has become trapped on the limit-cycle.
 
-      The slider controls $\mu$, the nonlinearity---$\mu=0$ corresponds to simple harmonic
-      motion (without a limit cycle), and large $\mu$ tends towards a 
-      [http://en.wikipedia.org/wiki/Relaxation_oscillator, relaxation oscillator].
-      To study synchronization its easiest to consider quasi-linear operation with
-      $\mu<1$ --- where the limit cycle tends towards the grey circle.
-	      </div>
+      The [http://en.wikipedia.org/wiki/Van_der_Pol_oscillator,Van der
+      Pol oscillator] is a good
+      [http://en.wikipedia.org/wiki/Toy_problem,toy problem] for
+      synchronization:
+      
+      $$ \frac{d^2x}{dt^2}-\mu \left(1-x^2 \right) \frac{dx}{dt} + x =
+      0 $$
+
+      If the two states are $x$ and $y$, then the two state equations
+      are $dx/dt=y$ and $dy/dt=\mu(1-x^2)y-x$. We can easily integrate
+      the state equations:
+
+    </div>
+
+
+    <div class="clear"></div> 
+    <div class="left_col">
+      <div data-file="vdp.coffee"></div>
+    </div>
+    <div class="right_col">
+      <div data-eval="vdp.coffee"></div>
+    </div>
+    <div class="clear"></div> 
+
+    <div class="box-text">
+      The states are shown as a function of time on the right. The
+      colored dots show the partial trajectory of random initial
+      states (for a finite time). The black dot shows a single initial
+      condition that has become trapped on the limit-cycle.
+
+      The slider controls $\mu$, the nonlinearity---$\mu=0$
+      corresponds to simple harmonic motion (without a limit cycle),
+      and large $\mu$ tends towards a
+      [http://en.wikipedia.org/wiki/Relaxation_oscillator, relaxation
+      oscillator].  To study synchronization its easiest to consider
+      quasi-linear operation with $\mu<1$ --- where the limit cycle
+      tends towards the grey circle.
+    </div>
 
     <div id="intro-fig">
+
       <canvas id="intro-vector-field" class="vector-field"></canvas>
       <div id="intro-oscillator"></div>
+      <div id="x-scope" class="scope"></div>
+      <div id="y-scope" class="scope"></div>
+
+      <div id="x-label">$x$</div>
+      <div id="y-label">$y$</div>
+
     </div>
+
+      <span id="intro-stop-button" class="text-button">click to stop</span>
+      <span id="intro-start-button" class="text-button">click to start</span>
 
     <div id="intro-checkboxes" class="canvas-text">
       <input type="checkbox" id="persist" value="showSunPhotons">Persistence</input>
     </div>
+
     <div id="intro-sliders">
       <div id="mu-value"></div>
       <input type="range" id="mu-slider" step="0.1" min="0" max="5" value="1">???</input>
     </div>
 
-    <div id="x-label">$x$</div>
-    <div id="y-label">$y$</div>
-    <div id="x-scope"></div>
-    <div id="y-scope"></div>
+    words
+
   </div>
 
   <h3>External Force</h3>
