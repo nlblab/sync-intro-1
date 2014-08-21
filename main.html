@@ -111,18 +111,19 @@
   <div class="clear"></div>
 
   <div class="left_col">
-    <h3>Disturbances</h3>
-    The oscillator on the right is quasi-linear ($\mu=0.05$). The red and black
-    markers show the evolution of two initial conditions. You can 
+    <h3>Disturbances</h3> The oscillator on the right is quasi-linear
+    ($\mu=0.05$). The red and black markers show the evolution of two
+    initial conditions. You can
     <span id="dist-stop-button" class="text-button">stop</span> the simulation 
     at any time, reposition the markers, then 
     <span id="dist-start-button" class="text-button">restart</span>.
 
-    To understand the effect of a disturbance on the oscillator it is instructive
-    to consider black marker as the nominal solution, and the red marker  as the 
-    perturbed solution (as if knocked off-course by an impulse). For examaple, say 
-    the nominal (black) solution is on the limit cycle, and the perturbation
-    reduces the amplitude by half and increases the phase by 45 degrees.
+    To understand the effect of a disturbance on the oscillator it is
+    instructive to consider black marker as the nominal solution, and
+    the red marker as the perturbed solution (as if knocked off-course
+    by an impulse). For examaple, say the nominal (black) solution is
+    on the limit cycle, and the perturbation reduces the amplitude by
+    half and increases the phase by 45 degrees.
     <span id="dist-scenario-1" class="text-button">click to try</span>.
 
   </div>
@@ -135,7 +136,6 @@
       <div id="y-label">$y$</div>
     </div>
 
-
   </div>
 
   <div class="clear"></div>
@@ -144,26 +144,68 @@
 
   <div class="left_col">
 
-    Hello?
+    We now turn to phase synchronization armed with a critical idea:
+    only disturbaces tangential to the limit cycle are important. To
+    explore the consequences lets consider the effect of a vertical,
+    sinusoidal disturbance on the circular limit-cycle on the right
+    (shown as a vertical arrow).
 
-    <div id="sync-sliders">
-      <div id="offset-value"></div>
-      <input type="range" id="offset-slider" step="15" min="-90" max="90" value="0">???</input>
-    </div>
+    The period of the disturbance matches the oscillator (the time
+    taken to traverse the limit-cycle)---but the *phase* of the
+    disturbance is arbitrary. The red marker shows the point where the
+    disturbance has a positive peak (i.e., shows the phase of the
+    disturbance relative to the limit-cycle). The green trace shows
+    the tangential disturbance, which either encourages the oscillator
+    phase to move in a clockwise, or anti-clockwise, direction.
 
-    <div id="sync-container" class="container">
-      <div id="checkboxes">
-	<input type="checkbox" id="trace" checked="checked">Trace</input>
-	<input type="checkbox" id="spin">Spin</input>
-      </div>
-      <div id="sync-oscillator"></div>
-      <div id="sync-scope"></div>
-    </div>
+    To make things easy, lets decouple the distubance from the
+    oscillator and study the effect that it *would* have as we vary
+    its phase. If we first [reset] the oscillator so that the peak
+    disturbance is at point A, it is visually obvious (from the arrow
+    as it traverses the limit cycle) that the oscillator phase would
+    be pulled in a clockwise direction.
+
   </div>
 
   <div class="right_col">
-    <span id="sync-stop-button" class="text-button">click to stop</span>
-    <span id="sync-start-button" class="text-button">click to start</span>
+
+    <span id="osc-start-button" class="text-button">oscillate!</span>
+    <span id="osc-stop-button" class="text-button">stop osc!</span>
+
+    Lets assume then that the [oscillator increses by phase 45
+    degrees] -- as a result of the disturbance. Now the green
+    trace---which was previously entirely negative---is no partly
+    positive. Averaged over the course of a full cycle there is less
+    anti-clockwise force from the disturbance than before.
+
+    What if we increase the oscillator phase by a [further 90
+    degrees]? Now we see that the green trace is mostly positive!
+    Indicating a net clock-wise force on the oscillator phase over a
+    full cycle. Clearly, the oscillator phase is being encouraged by
+    the disturbance to a point where the [average force over a full
+    period is zero].
+
+    It is instructive to increment the oscillator phase
+    <span id="osc-cw-button" class="text-button">clockwise</span>
+    or <span id="osc-acw-button"
+    class="text-button">anti-clockwise</span> and observe the green
+    trace.  In every case the oscillator phase is encouraged back to
+    the same point.
+
+    Thus, whatever the phase of the oscillator is initially relative
+    to the disturbance, the disturbance will encourage the oscillator
+    to a fixed phase---in this case, so that the oscillator is at the
+    top of the limit-cycle when the disturbance has its peak positive
+    value. In other words, the oscillator phase-locks to the
+    disturbance.
+
+
   </div>
   
+  <div class="clear"></div>
+  <div id="sync-container" class="container">
+    <div id="sync-oscillator"></div>
+    <div id="sync-scope"></div>
+  </div>
+
 </div>

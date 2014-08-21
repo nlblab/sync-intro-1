@@ -274,18 +274,19 @@ class Oscillator extends d3Object
             .scale(@yscale)
             .orient("left")
 
+
 class PhaseSync extends d3Object
-       
+    
     margin = Figure.margin
     width = Figure.width
     height = Figure.height
-    omega = 1 # degrees/sample
 
     constructor: (X, @offset=0) ->
         super X 
 
         @phi = 0 # degrees 
-
+        @omega = 0 # degrees/sample
+    
         # Clear any previous event handlers.
         @obj.on("click", null)  
         d3.behavior.drag().on("drag", null)
@@ -321,6 +322,14 @@ class PhaseSync extends d3Object
             .attr("stroke", "black")
             .attr("fill", "transparent")
 
+        @peakDist = @plot.append("circle") # peak disturbance
+            .attr("id", "marker-peak")
+            .attr("r", 10)
+            .attr("cx", @xscale 0 )
+            .attr("cy", @yscale 4 )
+            .attr("stroke", "red")
+            .attr("fill", "transparent")
+            
         @plot.append("circle") # limit-cycle
             .attr("r", @xscale(4)-@xscale(0))
             .attr("cx", @xscale 0 )
@@ -340,18 +349,27 @@ class PhaseSync extends d3Object
             .style("stroke-width","1")
 
     move: () ->
-        @phi += omega
+        @phi += @omega
         theta = 45
-        @mag = 1.5*SIN(@phi+@offset) # length of dist vector
+        @mag = 1.5*SIN(@phi) # length of dist vector
+        X = -4*COS(@phi-@offset)
+        Y = 4*SIN(@phi-@offset)
         @vecDist
-            .attr("x1", @xscale 4*COS(@phi)).attr("y1", @yscale -4*SIN(@phi))
-            .attr("x2", @xscale 4*COS(@phi)).attr("y2", @yscale -4*SIN(@phi)+@mag)
-        center = "#{@xscale(0)} #{@yscale(0)}"
-        @markerSoln.attr("transform", "rotate(#{@phi+90} #{center} )")
-         
+            .attr("x1", @xscale X).attr("y1", @yscale Y)
+            .attr("x2", @xscale X).attr("y2", @yscale(Y+@mag))
+        
+        @markerSoln.attr("cx", @xscale X).attr("cy", @yscale Y)
+
+        #if @phi%360 == 270
+        #    @peakDist.attr("transform", "rotate(#{90+@phi-@offset} #{center} )")
+
     initAxes: ->
         @xscale = Figure.xscale
         @yscale = Figure.yscale
+
+    incPeakMarker: ->
+        center = "#{@xscale(0)} #{@yscale(0)}"
+        @peakDist.attr("transform", "rotate(#{-@offset} #{center} )")
 
 class Scope extends d3Object
 
@@ -434,7 +452,7 @@ class Scope extends d3Object
         
         @yScale = d3.scale.linear()
             .domain([@spec.yMin, @spec.yMax])
-            .range([0, height])
+            .range([height, 0])
 
         @xScale = d3.scale.linear()
             .domain([0, @spec.N-1])
@@ -608,7 +626,7 @@ class SyncSim
     constructor:  ->
         @phaseSync = new PhaseSync "sync-oscillator"
 
-        spec =
+        @scope = new Scope
             scope : "sync-scope"
             initVal: 160
             color : "green"
@@ -617,19 +635,24 @@ class SyncSim
             width : 320
             height : 320
             N: 201
-            fade: 1  
-        @scope = new Scope spec
+            fade: 0  
 
-        new Checkbox "trace" , (v) =>  @scope.show(v)
-
-        $("#offset-slider").on "change", => @updateOffset()
+        $("#osc-stop-button").on "click", => @oscStop()
+        $("#osc-start-button").on "click", => @oscStart()
+        $("#osc-cw-button").on "click", => @oscPhase(1)
+        $("#osc-acw-button").on "click", => @oscPhase(-1)
 
         setTimeout (=> @animate() ), 2000
 
-    updateOffset: ->
-        offset = parseFloat(d3.select("#offset-slider").property("value"))
-        @phaseSync.offset = offset
-        d3.select("#offset-value").html(offset)
+    oscPhase: (u) ->
+        @phaseSync.offset += 15*u
+        @phaseSync.incPeakMarker()
+
+    oscStart: ->
+        @phaseSync.omega = 1
+
+    oscStop: ->
+        @phaseSync.omega = 0
 
     animate: ->
         @timer1 = setInterval (=> @snapshot1()), 20
@@ -639,7 +662,7 @@ class SyncSim
         @phaseSync.move()
 
     snapshot2: ->
-        @scope.draw(@scope.yScale COS(@phaseSync.phi)*SIN(@phaseSync.phi+@phaseSync.offset))
+        @scope.draw(@scope.yScale -SIN(@phaseSync.phi)*COS(@phaseSync.phi-@phaseSync.offset))
 
 
 #new IntroSim
