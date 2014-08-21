@@ -665,9 +665,9 @@ class SyncSim
         @scope.draw(@scope.yScale -SIN(@phaseSync.phi)*COS(@phaseSync.phi-@phaseSync.offset))
 
 
-#new IntroSim
+new IntroSim
 #new DistSim
-new SyncSim
+#new SyncSim
 
 #d3.selectAll("#stop-button").on "click", ->
 #    distSim.stop()

@@ -4,50 +4,63 @@
 
   <h2>Introduction to Synchronization (part I)</h2>
 
-  <span id="intro-stop-button" class="text-button">click to stop</span>
-  <span id="intro-start-button" class="text-button">click to start</span>
 
   <div class="left_col">
     
-    Examples of synchronization are found throughout science and engineering X. 
-    Synchronization of cicada (biology X) and clocks (physics X) and clapping
-    (psycology X) are well known. In mobile phones, the synchronization of a
-    high-frequency (GHz) oscillator to a low-frequency (MHz) reference is
-    essential. While the detail of synchronization may be *very* technical, it is
-    quite possible to quicky appreciate its broad ideas with an intuitive grasp of
-    dynamic systems (limit cycles in particular). Here we follow the first part 
-    of [X], "Synchronization without formulae". 
-    
-    The question (as ever) is what do such differing examples of synchronization
-    (from physics, engineering, biology, psycology, ...) have in common? That is, 
-    what are the *universal* properties of synchronization that do not depend on 
-    a particular system? To address these questions (at least, to make a start) 
-    we consider the most simple case --- an oscillator synchonized by an enternal force.
+    [http://www.scholarpedia.org/article/Synchronization,Synchronization]
+    is found throughout science and engineering (see,
+    e.g. [http://books.google.com/books?id=FuIv845q3QUC,link] and
+    [http://books.google.com/books?id=a4bfvTMvYpcC, link]).
+    Synchronization of cicada (biology) and clocks (physics) and
+    clapping (psycology) are well known. In mobile phones, the
+    synchronization of a high-frequency (GHz) oscillator to a
+    low-frequency (MHz) reference is essential
+    [http://en.wikipedia.org/wiki/Phase-locked_loop, link]. While the
+    detail of synchronization is technical, the basic ideas can be
+    quickly grasped wih a modest understanding of dynamic systems.
+
+    What do such diverse examples of synchronization (from physics,
+    engineering, biology, psycology, ...) have in common? What are the
+    *universal* properties of synchronization (that do not depend on
+    the specifics of a particular system)---and how can they be
+    understood at an intuitive level? To address these questions (at
+    least, to make a start) we consider the most simple case---phase
+    synchronization of an oscillator by an enternal force at the same
+    frequency.
 
   </div>
 
   <div class="right_col">
 
-    What as "oscillator" is to you will depend on your background. In electronics,
-    an oscillator typically comprises an inductor and capacitor, where (electrical)
-    energy in the capacitor is periodically exchanged with (magnetic) energy in the
-    inductor. Energy sloshes back an forth at the resonant frequency, and a power
-    supply compensates for the inevitable losses. In other fields the details will
-    differ --- but the important aspects are the same. For example, a metronome
-    periodically exchanges kinetic energy and potential energy as the pendulum
-    swings --- and its escapement replaces any losses.
+    What as "oscillator" is depends on your background. In
+    electronics, an oscillator typically comprises an inductor and
+    capacitor, where (electrical) energy in the capacitor is
+    periodically exchanged with (magnetic) energy in the
+    inductor. Energy sloshes back an forth at the resonant frequency,
+    and a power supply compensates for the inevitable losses. In other
+    fields the details differ --- but the important aspects are the
+    same. A metronome periodically exchanges kinetic energy and
+    potential energy as the pendulum swings --- and its escapement
+    replaces any losses.
     
-    For us, the main thing is that an "oscillator" has two states (say capacitor
-    voltage and inductor current, or pendulum height and speed), and from any
-    initial condition we end up with a stable, periodic oscillation. Furthermore,
-    because each state is periodic, if we plot one against the other in a
-    phase plane we see a limit cycle.
+    The main thing is that an "oscillator" has two states (say
+    capacitor voltage and inductor current, or pendulum height and
+    speed), and from any initial condition we end up with a stable,
+    periodic oscillation. Then, plotting one against the other in a
+    [http://en.wikipedia.org/wiki/Phase_portrait,phase portrait], we
+    see a limit cycle. That is, a repetitive, periodic trajectory of
+    states that attract a range of initial conditions.
  
   </div>
 
   <div class="clear"></div>
 
   <div id="vdp-box" class="container">
+
+    <span id="intro-stop-button" class="text-button">click to stop</span>
+    <span id="intro-start-button" class="text-button">click to start</span>
+
+
     <h3 style="text-align:center;">Van der Pol Oscillator</h3>
     <div class="box-text">
       The [http://en.wikipedia.org/wiki/Van_der_Pol_oscillator,Van der Pol oscillator]
