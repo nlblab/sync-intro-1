@@ -1,9 +1,9 @@
-f = (t, v, mu) ->
+stateEq = (t, v, mu) ->
     [v[1], mu*(1-v[0]*v[0])*v[1]-v[0]]
 mu = 1 # $\mu$
-{rk, ode} = $blab.ode # Import ODE solver
+{rk, ode} = $blab.ode #; Import ODE solver
 t = linspace 0, 20, 100 #; Time grid
-w = ode(rk[1], f, t, [1, 1], mu) #; Solve
+w = ode(rk[1], stateEq, t, [1, 1], mu) #;
 
 plot t, w.T,
     xlabel: "t"

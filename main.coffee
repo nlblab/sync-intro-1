@@ -228,7 +228,7 @@ class Oscillator extends d3Object
 
         @moveMarker(@marker0, -1000, -1000) # initially hide off-screen
         @moveMarker(@marker1, -1000, -1000)
-        
+
     marker: (color, guide) ->
         m = @plot.append("circle")
             .attr("r",10)
@@ -475,6 +475,7 @@ class IntroSim
     constructor: ->
 
         @canvas = new Canvas "#intro-vector-field"
+
         @oscillator = new Oscillator "intro-oscillator",
             marker0color: "black"
             marker1color: "transparent"
@@ -484,7 +485,7 @@ class IntroSim
         @vectorField = new Emitter @canvas
         @markerPoint = new vfPoint
 
-        specX =
+        @scopeX = new Scope
             scope : "x-scope"
             initVal : Figure.xscale(@markerPoint.x)
             color : "green"
@@ -495,7 +496,7 @@ class IntroSim
             N: 255
             fade: 0
 
-        specY =
+        @scopeX = new Scope
             scope : "y-scope"
             initVal: Figure.yscale(@markerPoint.y)
             color : "red"
@@ -506,9 +507,6 @@ class IntroSim
             N: 255
             fade: 0
 
-        @scopeX = new Scope specX
-        @scopeY = new Scope specY
-
         @persist = new Checkbox "persist" , (v) =>  @.checked = v
 
         $("#mu-slider").on "change", => @updateMu()
@@ -517,8 +515,7 @@ class IntroSim
         d3.selectAll("#intro-stop-button").on "click", => @stop()
         d3.selectAll("#intro-start-button").on "click", => @start()
 
-        setTimeout (=> @animate() ), 2000
-
+        #setTimeout (=> @animate() ), 2000
 
     updateMu: ->
         k = parseFloat(d3.select("#mu-slider").property("value"))
@@ -673,7 +670,7 @@ class SyncSim
         @scope.draw(@scope.yScale -SIN(@phaseSync.phi)*COS(@phaseSync.phi-@phaseSync.offset))
 
 
-#new IntroSim
+new IntroSim
 #new DistSim
 #new SyncSim
 

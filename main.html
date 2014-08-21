@@ -69,9 +69,10 @@
 
       If $x$ is one state and $y$ is the other, then two state
       equations are $dx/dt=y$ and $dy/dt=\mu(1-x^2)y-x$.  Code to
-      integrate these equations is below. It is instructive to change
-      the nonlinearity parameter, $\mu$, and note how $x$ and $y$ are
-      become nearly sinusoidal for $\mu \ll 1$.
+      integrate these equations is below (edit, then ctrl-enter to
+      run). It is instructive, for example, to change the nonlinearity
+      parameter (i.e., the nonlinear damping), $\mu$, and note how $x$
+      and $y$ are become nearly sinusoidal for $\mu \ll 1$.
 
     </div>
 
@@ -86,49 +87,51 @@
     <div class="clear"></div> 
 
     <div class="box-text">
-      The states are shown as a function of time on the right. The
-      colored dots show the partial trajectory of random initial
-      states (for a finite time). The black dot shows a single initial
-      condition that has become trapped on the limit-cycle.
+      Showing the partial (finite time) trajector of randomly chosen
+      initial states (colored dots, below left) gives a better idea of
+      how the attractor works.  <span id = "intro-start-button" class
+      = "text-button">click to start</span> <span id =
+      "intro-stop-button" class = "text-button">click to stop</span>
 
-      The slider controls $\mu$, the nonlinearity---$\mu=0$
-      corresponds to simple harmonic motion (without a limit cycle),
-      and large $\mu$ tends towards a
-      [http://en.wikipedia.org/wiki/Relaxation_oscillator, relaxation
-      oscillator].  To study synchronization its easiest to consider
-      quasi-linear operation with $\mu<1$ --- where the limit cycle
-      tends towards the grey circle.
+      The black dot shows a single initial condition that has become
+      trapped on the limit-cycle.  The second plot (below, right)
+      shows the evolution of the two coordinates of the black dot
+      (i.e., the $x$ and $y$). To study synchronization its easiest to
+      consider quasi-linear operation with $\mu<1$ --- where the limit
+      cycle tends towards the grey circle.
+
     </div>
 
     <div id="intro-fig">
 
       <canvas id="intro-vector-field" class="vector-field"></canvas>
       <div id="intro-oscillator"></div>
+
+      <div id = "intro-controls">
+	<div id = "intro-checkbox">
+	  <input type="checkbox" id="persist" value="showSunPhotons">Persistence</input>
+	</div>
+	<input type="range" id="mu-slider" step="0.1" min="0" max="5" value="1"></input>
+	<div id="mu-value"></div>
+	<div id="mu-label">$\mu$</div>
+      </div>
+	
       <div id="x-scope" class="scope"></div>
       <div id="y-scope" class="scope"></div>
 
-      <div id="x-label">$x$</div>
-      <div id="y-label">$y$</div>
+      <div id="x-label">$\color{red}{x}$</div>
+      <div id="y-label">$\color{green}{y}$</div>
 
     </div>
-
-      <span id="intro-stop-button" class="text-button">click to stop</span>
-      <span id="intro-start-button" class="text-button">click to start</span>
-
-    <div id="intro-checkboxes" class="canvas-text">
-      <input type="checkbox" id="persist" value="showSunPhotons">Persistence</input>
-    </div>
-
-    <div id="intro-sliders">
-      <div id="mu-value"></div>
-      <input type="range" id="mu-slider" step="0.1" min="0" max="5" value="1">???</input>
-    </div>
-
-    words
 
   </div>
 
   <h3>External Force</h3>
+
+
+      
+     
+
   
   <div class="left_col">
 
