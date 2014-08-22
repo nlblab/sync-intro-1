@@ -558,9 +558,14 @@ class DistSim
 
     # Illustrate effect of disturbances with two phase trajectories.
     
-    constructor: (@u0=3, @v0=-3, @u1=3, @v1=2) ->
+    constructor: (@u0=2.2/R2, @v0=2.19/R2, @u1=1, @v1=0) ->
 
-        @oscillator = new Oscillator "dist-oscillator"
+        @oscillator = new Oscillator "dist-oscillator",
+            marker0color: "black"
+            marker1color: "red"
+            guide0color: "grey"
+            guide1color: "grey"
+
         @canvas = new Canvas "#dist-vector-field"
         @point0 = new vfPoint @u0, @v0, 0.1
         @point1 = new vfPoint @u1, @v1, 0.1
@@ -568,16 +573,16 @@ class DistSim
 
         d3.selectAll("#dist-stop-button").on "click", => @stop()
         d3.selectAll("#dist-start-button").on "click", => @start()
-        d3.selectAll("#dist-scenario-1").on "click", => @restart({x:2.2/R2, y:2.19/R2},{x:1, y:0})
+        d3.selectAll("#dist-scenario-1").on "click", => @setIC({x:@u0, y:@v0},{x:@u1, y:@v1})
 
-        setTimeout (=> @start() ), 2000
+        #setTimeout (=> @start() ), 2000
 
-    restart: (p0, p1) =>
+    setIC: (p0, p1) =>
         @stop()
         [@point0.x, @point0.y] = [p0.x, p0.y]
         [@point1.x, @point1.y] = [p1.x, p1.y]
         @update()
-        @start()
+        @canvas.clear()
 
     update: ->
         @markerUpdate(@point0,  @oscillator.marker0)
@@ -671,8 +676,8 @@ class SyncSim
 
 
 new IntroSim
-#new DistSim
-#new SyncSim
+new DistSim
+new SyncSim
 
 #d3.selectAll("#stop-button").on "click", ->
 #    distSim.stop()

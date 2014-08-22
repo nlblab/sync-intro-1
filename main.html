@@ -76,17 +76,20 @@
 
     </div>
 
-
     <div class="clear"></div> 
+
     <div class="left_col">
       <div data-file="vdp.coffee"></div>
     </div>
+
     <div class="right_col">
       <div data-eval="vdp.coffee"></div>
     </div>
+
     <div class="clear"></div> 
 
     <div class="box-text">
+
       Showing the partial (finite time) trajector of randomly chosen
       initial states (colored dots, below left) gives a better idea of
       how the attractor works.  <span id = "intro-start-button" class
@@ -105,15 +108,20 @@
     <div id="intro-fig">
 
       <canvas id="intro-vector-field" class="vector-field"></canvas>
+
       <div id="intro-oscillator"></div>
 
       <div id = "intro-controls">
+
 	<div id = "intro-checkbox">
 	  <input type="checkbox" id="persist" value="showSunPhotons">Persistence</input>
 	</div>
+
 	<input type="range" id="mu-slider" step="0.1" min="0" max="5" value="1"></input>
+
 	<div id="mu-value"></div>
 	<div id="mu-label">$\mu$</div>
+
       </div>
 	
       <div id="x-scope" class="scope"></div>
@@ -126,48 +134,45 @@
 
   </div>
 
-  <h3>External Force</h3>
+  <h3>Disturbances</h3> 
 
+  An oscillator can be disturbed by some external force that changes
+  its trajectory in the phase potrait. In practical terms, for
+  instance, electronic oscillators are often disturbed by coupling via
+  finite ground impedances (see also
+  [http://en.wikipedia.org/wiki/Injection_locking, injection
+  locking]).
 
-      
-     
+  Note, though, that this is different from Huygens classic example of
+  two coupled clocks --- in this case the oscillators (clocks)
+  *mutually* affect each other. Here we consider that the external
+  force is in one direction -- the oscillator does not affect the
+  force.
 
-  
-  <div class="left_col">
+   <div class="left_col">
 
-    An "enternal force" on an oscillator is something that disturbs its
-    trajectory in the phase space. In practical terms, for instance, electronic 
-    oscillators are often disturbed by coupling via finite ground
-    impedances. 
+    Synchronization is essentially about how an oscillator responds to
+    (often periodic) disturbances.  Thus, before considering
+    synchronization itself, we must know something of how oscillators
+    respond.  The phase-portrait on the right corresponds to a
+    quasi-linear ($\mu=0.05$) oscillator.  The black marker is on the
+    limit-cycle.  Say an intantaneous (impulsive) perturbation knocks
+    the black marker to the red marker---a 45 degree rotation and
+    attenuation by half.  To see how the nominal and disturbed points
+    evolve: <span id="dist-start-button"
+    class="text-button">start</span> (then <span id="dist-stop-button"
+    class ="text-button">stop</span> or <span id="dist-scenario-1"
+    class="text-button">reset</span>).
 
-  </div>
-
-  <div class="right_col">
-
-    Note, though, that this is different from Huygens classic
-    example of two coupled clocks --- in this case the oscillators (clocks)
-    mutually affect each other. The influence of an external force is
-    thus only in one direction -- the oscillator does not affect the force.
-
-  </div>
-
-  <div class="clear"></div>
-
-  <div class="left_col">
-    <h3>Disturbances</h3> The oscillator on the right is quasi-linear
-    ($\mu=0.05$). The red and black markers show the evolution of two
-    initial conditions. You can
-    <span id="dist-stop-button" class="text-button">stop</span> the simulation 
-    at any time, reposition the markers, then 
-    <span id="dist-start-button" class="text-button">restart</span>.
-
-    To understand the effect of a disturbance on the oscillator it is
-    instructive to consider black marker as the nominal solution, and
-    the red marker as the perturbed solution (as if knocked off-course
-    by an impulse). For examaple, say the nominal (black) solution is
-    on the limit cycle, and the perturbation reduces the amplitude by
-    half and increases the phase by 45 degrees.
-    <span id="dist-scenario-1" class="text-button">click to try</span>.
+    The key observation is that the rotation (approximately 45 degree)
+    part of the disturbance persists, but the amplitude part
+    dissappears. This example is on a grossly large scale---but its
+    easy to imagine that for typically small disturbances the
+    oscillator's phase (its position on the limit cycle) is easy to
+    disturb, but the amplitude is restored by the oscailltor's
+    nonlinearity. Said another way, perturbations tangential to the
+    limit-cycle are important, and perturbations perpendicular to the
+    limit cycle are not.
 
   </div>
 
