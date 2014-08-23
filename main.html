@@ -193,67 +193,72 @@
   <div class="left_col">
 
     We now turn to phase synchronization armed with a critical idea:
-    only disturbaces tangential to the limit cycle are important. To
-    explore the consequences lets consider the effect of a vertical,
-    sinusoidal disturbance on the circular limit-cycle on the right
-    (shown as a vertical arrow).
+    only the part of the disturbace that is tangential to the limit
+    cycle is important. To explore further, consider the effect of a
+    vertical, sinusoidal disturbance (with the same period as the
+    oscillator) on the circular limit-cycle
+    below---<span id="osc-start-button" class="text-button">click to
+    start</span>. To begin, we only consider the force exerted,
+    without letting it actually affect the oscillator. Shortly, we
+    consider the action of the force, and how it leads to phase
+    synchronization.
 
-    The period of the disturbance matches the oscillator (the time
-    taken to traverse the limit-cycle)---but the *phase* of the
-    disturbance is arbitrary. The red marker shows the point where the
-    disturbance has a positive peak (i.e., shows the phase of the
-    disturbance relative to the limit-cycle). The green trace shows
-    the tangential disturbance, which either encourages the oscillator
-    phase to move in a clockwise, or anti-clockwise, direction.
+    </div>
 
-    To make things easy, lets decouple the distubance from the
-    oscillator and study the effect that it *would* have as we vary
-    its phase. If we first [reset] the oscillator so that the peak
-    disturbance is at point A, it is visually obvious (from the arrow
-    as it traverses the limit cycle) that the oscillator phase would
-    be pulled in a clockwise direction.
+  <div class="right_col">
+
+    The red circle marks the point where the disturbance magnitude
+    peaks. Visually, its clear that the oscillator phase (its position
+    on the limit-cyle) is being pulled in an anti-clockwise
+    direction. This is confirmed by the green trace on the right,
+    showing the tangential disturbance is always negative (acting
+    anti-clockwise) over a full cycle. Less obvious is that the
+    tangential force depends on the position of the red circle---that
+    is, the relative phase of the oscillator and disturbance.
+
+  </div>
+
+  <div class="clear"></div>
+
+  <div id="sync-container" class="container">
+    <div id="sync-oscillator"></div>
+    <div id="sync-scope"></div>
+    <div id="cw-label">Anti-clockwise force</div>
+    <div id="acw-label">Clockwise force</div>
+  </div>
+
+
+  <div class="left_col">
+
+    Say that the disturbance rotates the oscillator phase
+    anti-clockwise a little: <span id="osc-acw-button"
+    class="text-button">anti-clockwise</span>. (You can move the
+    phase <span id="osc-acw-button"
+    class="text-button">clockwise</span>,
+    or <span id="osc-stop-button" class="text-button">stop</span> the
+    oscillator altogther). The red circle moves anti-clockwise (i.e.,
+    the disturbance peaks at a new position on the limit-cycle).
+    Note what happens to the the tangential force---the green trace
+    has moved upwards and the average force (over a cycle) is
+    *less*. Keep clicking to make the effect more obvious.
 
   </div>
 
   <div class="right_col">
 
-    <span id="osc-start-button" class="text-button">oscillate!</span>
-    <span id="osc-stop-button" class="text-button">stop osc!</span>
-
-    Lets assume then that the [oscillator increses by phase 45
-    degrees] -- as a result of the disturbance. Now the green
-    trace---which was previously entirely negative---is no partly
-    positive. Averaged over the course of a full cycle there is less
-    anti-clockwise force from the disturbance than before.
-
-    What if we increase the oscillator phase by a [further 90
-    degrees]? Now we see that the green trace is mostly positive!
-    Indicating a net clock-wise force on the oscillator phase over a
-    full cycle. Clearly, the oscillator phase is being encouraged by
-    the disturbance to a point where the [average force over a full
-    period is zero].
-
-    It is instructive to increment the oscillator phase
-    <span id="osc-cw-button" class="text-button">clockwise</span>
-    or <span id="osc-acw-button"
-    class="text-button">anti-clockwise</span> and observe the green
-    trace.  In every case the oscillator phase is encouraged back to
-    the same point.
-
-    Thus, whatever the phase of the oscillator is initially relative
-    to the disturbance, the disturbance will encourage the oscillator
-    to a fixed phase---in this case, so that the oscillator is at the
-    top of the limit-cycle when the disturbance has its peak positive
-    value. In other words, the oscillator phase-locks to the
-    disturbance.
-
+    Notice that when the red circle is at the top of the limit-cycle
+    (i.e., say the oscilltor phase has been encouraged by the
+    disturbance into that position) there is zero *average* tengential
+    force on the oscillator. Furthermore, if the red circle moves
+    anti-clockwise past the top of the limit-cycle the average force
+    is *clockwise*---pushing it back towards the top. Thus, the
+    disturbance always encourages that oscillator to be at the the top
+    of the limit cycle when the disturbance peaks. Said another way,
+    the oscillator phase is *locked* to the disturbance.
+    
 
   </div>
   
   <div class="clear"></div>
-  <div id="sync-container" class="container">
-    <div id="sync-oscillator"></div>
-    <div id="sync-scope"></div>
-  </div>
 
 </div>

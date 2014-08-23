@@ -277,7 +277,6 @@ class Oscillator extends d3Object
             .scale(@yscale)
             .orient("left")
 
-
 class PhaseSync extends d3Object
     
     margin = Figure.margin
@@ -288,7 +287,7 @@ class PhaseSync extends d3Object
         super X 
 
         @phi = 0 # degrees 
-        @omega = 0 # degrees/sample
+        @omega = 1 # degrees/sample
     
         # Clear any previous event handlers.
         @obj.on("click", null)  
@@ -337,10 +336,10 @@ class PhaseSync extends d3Object
             .attr("r", @xscale(4)-@xscale(0))
             .attr("cx", @xscale 0 )
             .attr("cy", @yscale 0 )
-            .attr("stroke", "black")
+            .attr("stroke", "#ccc")
             .attr("fill", "transparent")
-            .style("stroke-dasharray", ("10,3"))
-            .attr("visibility", "visible")
+            #.style("stroke-dasharray", ("10,3"))
+            #.attr("visibility", "visible")
 
     vector: (U, x, y) -> # from (0,0)
         U.append('line')
@@ -353,9 +352,9 @@ class PhaseSync extends d3Object
 
     move: () ->
         @phi += @omega
-        theta = 45
         @mag = 1.5*SIN(@phi) # length of dist vector
-        X = -4*COS(@phi-@offset)
+        console.log "???", @phi, @offset
+        X = 4*COS(@phi-@offset)
         Y = 4*SIN(@phi-@offset)
         @vecDist
             .attr("x1", @xscale X).attr("y1", @yscale Y)
@@ -363,16 +362,13 @@ class PhaseSync extends d3Object
         
         @markerSoln.attr("cx", @xscale X).attr("cy", @yscale Y)
 
-        #if @phi%360 == 270
-        #    @peakDist.attr("transform", "rotate(#{90+@phi-@offset} #{center} )")
-
     initAxes: ->
         @xscale = Figure.xscale
         @yscale = Figure.yscale
 
-    incPeakMarker: ->
+    movePeakMarker: ->
         center = "#{@xscale(0)} #{@yscale(0)}"
-        @peakDist.attr("transform", "rotate(#{-@offset} #{center} )")
+        @peakDist.attr("transform", "rotate(#{@offset} #{center} )")
 
 class Scope extends d3Object
 
@@ -647,22 +643,32 @@ class SyncSim
             N: 201
             fade: 0  
 
+        @setIC(90, 90)
+
         $("#osc-stop-button").on "click", => @oscStop()
         $("#osc-start-button").on "click", => @oscStart()
         $("#osc-cw-button").on "click", => @oscPhase(1)
         $("#osc-acw-button").on "click", => @oscPhase(-1)
+        $("#osc-45-button").on "click", => @setIC(90, 45)
 
-        setTimeout (=> @animate() ), 2000
+    setIC: (u, v) ->
+        @phaseSync.phi = u
+        @phaseSync.offset = v
+        @phaseSync.move()
+        @phaseSync.movePeakMarker()
 
     oscPhase: (u) ->
-        @phaseSync.offset += 15*u
-        @phaseSync.incPeakMarker()
+        @phaseSync.offset += 30*u
+        @phaseSync.movePeakMarker()
 
     oscStart: ->
-        @phaseSync.omega = 1
+        setTimeout (=> @animate() ), 200
 
     oscStop: ->
-        @phaseSync.omega = 0
+        clearInterval @timer1
+        clearInterval @timer2
+        @timer1 = null
+        @timer2 = null
 
     animate: ->
         @timer1 = setInterval (=> @snapshot1()), 20
