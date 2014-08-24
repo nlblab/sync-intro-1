@@ -353,7 +353,7 @@ class PhaseSync extends d3Object
     move: () ->
         @phi += @omega
         @mag = 1.5*SIN(@phi) # length of dist vector
-        console.log "???", @phi, @offset
+        console.log "?", @phi, @offset
         X = 4*COS(@phi-@offset)
         Y = 4*SIN(@phi-@offset)
         @vecDist
@@ -526,7 +526,7 @@ class IntroSim
         @drawMarker()
 
     snapshot2: ->
-        @scopeX.draw Figure.xscale(-1*@markerPoint.x) # ??? -1 ???
+        @scopeX.draw Figure.xscale(-1*@markerPoint.x) # ? -1 ?
         @scopeY.draw Figure.yscale(@markerPoint.y)
 
     drawMarker: ->
