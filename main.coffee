@@ -492,7 +492,7 @@ class IntroSim
             N: 255
             fade: 0
 
-        @scopeX = new Scope
+        @scopeY = new Scope
             scope : "y-scope"
             initVal: Figure.yscale(@markerPoint.y)
             color : "red"
@@ -526,7 +526,7 @@ class IntroSim
         @drawMarker()
 
     snapshot2: ->
-        @scopeX.draw Figure.xscale(@markerPoint.x)
+        @scopeX.draw Figure.xscale(-1*@markerPoint.x) # ??? -1 ???
         @scopeY.draw Figure.yscale(@markerPoint.y)
 
     drawMarker: ->
@@ -685,5 +685,3 @@ new IntroSim
 new DistSim
 new SyncSim
 
-#d3.selectAll("#stop-button").on "click", ->
-#    distSim.stop()

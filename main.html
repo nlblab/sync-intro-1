@@ -6,24 +6,24 @@
   <div class="left_col">
     
     [http://www.scholarpedia.org/article/Synchronization,Synchronization]
-    is found throughout science and engineering (see,
-    e.g. [http://books.google.com/books?id=FuIv845q3QUC,link] and
-    [http://books.google.com/books?id=a4bfvTMvYpcC, link]).
+    is found throughout science and engineering
+    ([http://books.google.com/books?id=a4bfvTMvYpcC, link]).
     Synchronization of cicada (biology) and clocks (physics) and
-    clapping (psycology) are well known. In mobile phones, the
-    synchronization of a high-frequency (GHz) oscillator to a
-    low-frequency (MHz) reference is essential
-    [http://en.wikipedia.org/wiki/Phase-locked_loop, link]. While the
-    detail of synchronization is technical, the basic ideas can be
-    quickly grasped wih a modest understanding of dynamic systems.
+    clapping (psycology) are well known
+    ([http://books.google.com/books?id=FuIv845q3QUC,link]). In mobile
+    phones, the synchronization of a high-frequency (GHz) oscillator
+    to a low-frequency (MHz) reference is essential---and the unwanted
+    synchronization of high-frequency oscillators is a curse. While
+    the detail of synchronization may be very technical, the basic
+    ideas can be quickly grasped.
 
-    What do such diverse examples of synchronization (from physics,
-    engineering, biology, psycology, ...) have in common? What are the
-    *universal* properties of synchronization (that do not depend on
-    the specifics of a particular system)---and how can they be
-    understood at an intuitive level? To address these questions (at
-    least, to make a start) we consider the most simple case---phase
-    synchronization of an oscillator by an enternal force at the same
+    What, then, do such diverse examples of synchronization (from
+    physics, engineering, biology, psycology, ...) have in common?
+    What are the *universal* properties of synchronization---and how
+    can they be understood at an intuitive level? To address these
+    questions (at least, to make a start) we consider the most simple
+    case---phase synchronization of an oscillator by an enternal
+    sinusoidal disturbance at the same
     <span class="pz_text" ref="test_note">frequency</span>.
 
   </div>
@@ -42,16 +42,16 @@
     and a power supply compensates for the inevitable losses. In other
     fields the details differ --- but the important aspects are the
     same. A metronome periodically exchanges kinetic energy and
-    potential energy as the pendulum swings --- and its escapement
-    replaces any losses.
+    potential energy as the pendulum swings --- and its
+    [http://en.wikipedia.org/wiki/Escapement,escapement] replaces any
+    losses.
     
     The main thing is that an "oscillator" has two states (say
     capacitor voltage and inductor current, or pendulum height and
-    speed), and from any initial condition we end up with a stable,
-    periodic oscillation. Then, plotting one against the other in a
+    speed), and initial condition achieves a stable, periodic
+    oscillation. Then, plotting one against the other in a
     [http://en.wikipedia.org/wiki/Phase_portrait,phase portrait], we
-    see a limit cycle. That is, a repetitive, periodic trajectory of
-    states that attract a range of initial conditions.
+    see a limit cycle (see Van der Pol box). 
  
   </div>
 
@@ -59,7 +59,7 @@
 
   <div id="vdp-box" class="container">
 
-    <h3 style="text-align:center;style="margin-bottom: 45px;"">Van der Pol Oscillator</h3>
+    <h3 style="text-align:center;margin-bottom: 45px;">Van der Pol Oscillator</h3>
     
     <div class="box-text">
 
@@ -100,12 +100,12 @@
       = "text-button">click to start</span> <span id =
       "intro-stop-button" class = "text-button">click to stop</span>
 
-      The black dot shows a single initial condition that has become
-      trapped on the limit-cycle.  The second plot (below, right)
-      shows the evolution of the two coordinates of the black dot
-      (i.e., the $x$ and $y$). To study synchronization its easiest to
-      consider quasi-linear operation with $\mu<1$ --- where the limit
-      cycle tends towards the grey circle.
+      The larger black dot shows a single initial condition that has
+      become trapped on the limit-cycle.  The second plot (below,
+      right) shows the evolution of the two coordinates of the black
+      dot (i.e., the $x$ and $y$). To study synchronization its
+      easiest to consider quasi-linear operation with $\mu<1$ ---
+      where the limit cycle tends towards the grey circle.
 
     </div>
 
@@ -131,39 +131,39 @@
       <div id="x-scope" class="scope"></div>
       <div id="y-scope" class="scope"></div>
 
-      <div id="x-label">$\color{red}{x}$</div>
-      <div id="y-label">$\color{green}{y}$</div>
+      <div id="x-label">$\color{green}{x}$</div>
+      <div id="y-label">$\color{red}{y}$</div>
 
     </div>
 
-  </div>
+  </div> 
 
-  <h3>Disturbances</h3> 
+  <h3 style="margin-top: 25px;">Disturbances</h3> 
 
-  An oscillator can be disturbed by some external force that changes
-  its trajectory in the phase potrait. In practical terms, for
-  instance, electronic oscillators are often disturbed by coupling via
-  finite ground impedances (see also
+  The oscillator's trajectory in the phase-portrait can be altered by
+  an external disturbance.  In practical terms, for instance,
+  electronic oscillators are often disturbed by coupling via finite
+  ground impedances which change the capacitor voltage (see also
   [http://en.wikipedia.org/wiki/Injection_locking, injection
   locking]).
 
   Note, though, that this is different from Huygens classic example of
-  two coupled clocks --- in this case the oscillators (clocks)
-  *mutually* affect each other. Here we consider that the external
-  force is in one direction -- the oscillator does not affect the
-  force.
+  two coupled clocks --- in that case the oscillators (clocks)
+  *mutually* affect each other. Here we consider that the disturbance
+  in one direction. The disturbance affects the oscillator, but the
+  oscillator does not affect the disturbance.
 
    <div class="left_col">
 
     Synchronization is essentially about how an oscillator responds to
     (often periodic) disturbances.  Thus, before considering
     synchronization itself, we must know something of how oscillators
-    respond.  The phase-portrait on the right corresponds to a
-    quasi-linear ($\mu=0.05$) oscillator.  The black marker is on the
-    limit-cycle.  Say an intantaneous (impulsive) perturbation knocks
-    the black marker to the red marker---a 45 degree rotation and
-    attenuation by half.  To see how the nominal and disturbed points
-    evolve: <span id="dist-start-button"
+    respond to external influence.  The phase-portrait on the right
+    corresponds to a quasi-linear ($\mu=0.1$) Van der Pol oscillator.  The black
+    marker is on the limit-cycle.  Say an intantaneous (impulsive)
+    disturbance knocks the black marker to the red marker---a 45
+    degree rotation and attenuation by half.  To see how the nominal
+    and disturbed points evolve: <span id="dist-start-button"
     class="text-button">start</span> (then <span id="dist-stop-button"
     class ="text-button">stop</span> or <span id="dist-scenario-1"
     class="text-button">reset</span>).
@@ -173,10 +173,9 @@
     dissappears. This example is on a grossly large scale---but its
     easy to imagine that for typically small disturbances the
     oscillator's phase (its position on the limit cycle) is easy to
-    disturb, but the amplitude is restored by the oscailltor's
-    nonlinearity. Said another way, perturbations tangential to the
-    limit-cycle are important, and perturbations perpendicular to the
-    limit cycle are not.
+    disturb, but the amplitude is restored by the nonlinearity. Feel
+    free to test this idea by stopping the oscillator, then dragging
+    the red and black markers (and restarting of course).
 
   </div>
 
@@ -196,27 +195,32 @@
 
   <div class="left_col">
 
-    We now turn to phase synchronization armed with a critical idea:
-    only the part of the disturbace that is tangential to the limit
-    cycle is important. To explore further, consider the effect of a
-    vertical, sinusoidal disturbance (with the same period as the
-    oscillator) on the circular limit-cycle oscillator
-    below---<span id="osc-start-button" class="text-button">click to
-    start</span>. To begin, we only consider the *potential* influence
-    of the disturbance, without allowing any actual effect.
+    We turn to phase synchronization armed with a critical idea: only
+    the part of the disturbace that is tangential to the limit cycle
+    is important. To explore further, consider the effect of a
+    vertical, sinusoidal disturbance---with the same period as the
+    oscillator---on the circular limit-cycle oscillator
+    below <span id="osc-start-button" class="text-button">click to
+    start</span>.
+
+    Initially, we consider only the *potential* influence of the
+    disturbance, without allowing any actual effect. In particular,
+    paying attention to the phase of the disturbance with respect to
+    the phase of the oscillator. For instance, the position of the
+    oscillator on the limit cycle when the disturbance peaks.
     
   </div>
 
   <div class="right_col">
 
-    The red circle marks the oscillator phase where the disturbance
-    magnitude peaks. The disturbance's peak---being independent of the
-    oscillator---are like the ticks of a clock. At any tick the
+    The (sinusoidal) disturbance's peak---being independent of the
+    oscillator---are like the ticks of a clock. For clarity in the
+    figure below we mark the peak with a red circle.  At any tick the
     oscillator's phase (position on the limit cycle) could potentially
     be anywhere---depending on where it started, or how it was
-    subsequently influenced.
+    influenced by the disturbance.
 
-    Below, it is clear that the oscillator is being influenced in an
+    Below, it is clear that the oscillator is being pulled in an
     anti-clockwise direction. This is confirmed by the green trace on
     the right, showing the tangential disturbance---which is always
     negative (acting anti-clockwise). Less obvious is that the
@@ -234,36 +238,40 @@
     <div id="acw-label">Clockwise force</div>
   </div>
 
+  <div class="clear" style="margin-bottom: 25px;"></div>
 
   <div class="left_col">
 
     Say that the disturbance rotates the oscillator phase
     anti-clockwise a little: <span id="osc-acw-button"
-    class="text-button">anti-clockwise</span>. (You can move the
-    phase <span id="osc-acw-button"
-    class="text-button">clockwise</span>,
+    class="text-button">click &#8634;</span>. (You can also move the
+    phase clockwise <span id="osc-acw-button"
+    class="text-button">click &#8635;</span>,
     or <span id="osc-stop-button" class="text-button">stop</span> the
     oscillator altogther). The red circle moves anti-clockwise (i.e.,
-    the disturbance peaks at a new position on the limit-cycle).
-    Note what happens to the the tangential force---the green trace
-    has moved upwards and the average force (over a cycle) is
-    *less*. Keep clicking to make the effect more obvious.
+    the disturbance peaks at a new position on the limit-cycle).  Note
+    what happens to the the tangential force---the green trace has
+    moved upwards and the average force (over a cycle) is *less*. Keep
+    clicking to make the effect more obvious.
+
+    Notice that when the red circle is at the top of the limit-cycle
+    (i.e., say the oscilltor phase has been encouraged by the
+    disturbance into that position) there is zero *average* tengential
+    force on the oscillator. That is, the disturbance (on average)
+    will not tend to move the oscillator phase in either direction.
 
   </div>
 
   <div class="right_col">
 
-    Notice that when the red circle is at the top of the limit-cycle
-    (i.e., say the oscilltor phase has been encouraged by the
-    disturbance into that position) there is zero *average* tengential
-    force on the oscillator. Furthermore, if the red circle moves
-    anti-clockwise past the top of the limit-cycle the average force
-    is *clockwise*---pushing it back towards the top. Thus, the
-    disturbance always encourages that oscillator to be at the the top
-    of the limit cycle when the disturbance peaks. Said another way,
-    the oscillator phase is *locked* to the disturbance.
+    Furthermore, if the red circle moves anti-clockwise past the top
+    of the limit-cycle the average force is *clockwise*---pushing it
+    back towards the top. Thus, the disturbance always encourages the
+    oscillator phase to be at the the top of the limit cycle when the
+    disturbance peaks. Said another way, the oscillator phase is
+    *locked* to the disturbance.
     
-
+    Conclusion ...
   </div>
   
   <div class="clear"></div>
