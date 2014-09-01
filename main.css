@@ -1,3 +1,8 @@
+h2, .notes {
+  font-family: 'Reenie Beanie', cursive;
+  font-size:    40px;
+}
+
 #text {
     width: 960px;
     margin: 0 auto;
